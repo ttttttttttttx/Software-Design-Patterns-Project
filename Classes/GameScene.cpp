@@ -74,6 +74,16 @@ bool CGameScene::init()
 	pSprite->setPosition(m_pGameMap->getFirstTiledPos());
 	this->addChild(pSprite);
 
+// Added for Observer Pattern - Create and register observers
+	auto uiObserver = new UIObserver();
+	auto buffObserver = new BuffObserver();
+	auto animateObserver = new AnimateObserver();
+	auto audioObserver = new AudioObserver();
+	
+	// Observer Pattern - Register observers with monster layer
+	m_pMonsterLayer->setObservers({uiObserver, buffObserver, 
+								  animateObserver, audioObserver});
+								  
 	this->scheduleUpdate();
 	return true;
 }

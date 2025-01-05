@@ -12,6 +12,9 @@
 #include "UILayer.h"
 #include "Animate.h"
 #include "ThreadPool.h"  // Include thread pool header file
+// Added for Observer Pattern
+#include "MonsterObserver.h"
+#include "MonsterObservers.h"
 
 USING_NS_CC;
 class CGameScene : public Scene
