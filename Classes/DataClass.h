@@ -4,7 +4,7 @@
 #include "cocos2d.h"
 #include "DataBase.h"
 
-// 关卡数据结构
+// Level data structure
 struct SLevelDt : SDataBase
 {
     SLevelDt()
@@ -15,66 +15,64 @@ struct SLevelDt : SDataBase
         nStartMoney = 0;
     }
 
-    string strViewImg;       // 关卡地图背景图
-    string strMapImg;        // 关卡地图图片
-    string strCardView;      // 卡牌预览图
-    int nStartMoney;         // 初始金币
-    vector<int> MonsterID;   // 关卡怪物ID列表
-    vector<int> CardID;       // 关卡卡牌ID列表
-    vector<int> vecWave;      // 关卡波次信息
+    string strViewImg;       // Level preview image
+    string strMapImg;        // Level map image
+    string strCardView;      // Card preview image
+    int nStartMoney;         // Starting money
+    vector<int> MonsterID;   // List of monster IDs for level
+    vector<int> CardID;      // List of card IDs for level
+    vector<int> vecWave;     // Wave information for level
 };
 
-// 关卡数据管理器
+// Level data manager
 class CLevelDtMgr : public CDataBaseMgr
 {
 public:
     CLevelDtMgr();
     ~CLevelDtMgr();
-    int getsize()// 获取关卡数据数量
+    int getsize()           // Get number of levels
     {
         return m_vecDatas.size();
     }
-    void setCurIndex(int nIndex)// 设置当前关卡索引
+    void setCurIndex(int nIndex)  // Set current level index
     {
         m_nCurIndex = nIndex;
-
     }
-    void addCurIndex()// 增加当前关卡索引
+    void addCurIndex()      // Increment current level index
     {
         if (m_nCurIndex < m_vecDatas.size() - 1)
         {
             m_nCurIndex++;
         }
     }
-    int getCurIndex()// 获取当前关卡索引
+    int getCurIndex()       // Get current level index
     {
         return m_nCurIndex;
     }
-    void addLockLevel()// 增加解锁关卡
+    void addLockLevel()     // Add unlocked level
     {
         if (m_nLockLevel < m_vecDatas.size())
         {
             m_nLockLevel = m_nCurIndex + 2;
         }
     }
-    int getLockLevel()// 获取解锁关卡索引
+    int getLockLevel()      // Get highest unlocked level
     {
         return m_nLockLevel;
-
     }
-    SLevelDt* getCurData()// 获取当前关卡数据
+    SLevelDt* getCurData()  // Get current level data
     {
         return static_cast<SLevelDt*>(m_vecDatas[m_nCurIndex]);
     }
 
-    void LoadFile(char* pFileName);   // 从文件加载关卡数据
+    void LoadFile(char* pFileName);   // Load level data from file
 
 private:
-    int m_nLockLevel;                 // 解锁的最高关卡索引
-    int m_nCurIndex;                  // 当前关卡索引
+    int m_nLockLevel;                 // Highest unlocked level
+    int m_nCurIndex;                  // Current level index
 };
 
-// 动画数据结构
+// Animation data structure
 struct SAniMateDt : public SDataBase
 {
     SAniMateDt()
@@ -83,24 +81,24 @@ struct SAniMateDt : public SDataBase
         strName = "";
     }
 
-    int nCount;          // 动画帧数
-    string strName;      // 动画帧名称前缀
+    int nCount;          // Number of animation frames
+    string strName;      // Animation frame prefix
 };
 
-// 动画数据管理器
+// Animation data manager
 class CAnimateDtMgr : public CDataBaseMgr
 {
 public:
     CAnimateDtMgr();
     ~CAnimateDtMgr();
 
-    void LoadFile(char* pFileName);   // 从文件加载动画数据
-    int getsize();                    // 获取动画数据数量
+    void LoadFile(char* pFileName);   // Load animation data from file
+    int getsize();                    // Get number of animation data
 
 private:
 };
 
-// 怪物数据结构
+// Monster data structure
 struct SMonsterDt : public SDataBase
 {
     SMonsterDt()
@@ -111,25 +109,25 @@ struct SMonsterDt : public SDataBase
         nMoney = 0;
     }
 
-    string strImg;       // 怪物图片
-    float fSpeed;        // 移动速度
-    int AnimateID;       // 怪物动画ID
-    int nMoney;          // 击败怪物获得的金币
+    string strImg;       // Monster image
+    float fSpeed;        // Movement speed
+    int AnimateID;       // Animation ID
+    int nMoney;          // Money earned from the monster
 };
 
-// 怪物数据管理器
+// Monster data manager
 class CMonsterDtMgr : public CDataBaseMgr
 {
 public:
     CMonsterDtMgr();
     ~CMonsterDtMgr();
 
-    void LoadFile(char* pFileName);   // 从文件加载怪物数据
+    void LoadFile(char* pFileName);   // Load monster data from file
 
 private:
 };
 
-// 卡牌数据结构
+// Card data structure
 struct SCardDt : SDataBase
 {
     SCardDt()
@@ -138,23 +136,23 @@ struct SCardDt : SDataBase
         nArmsID = 0;
     }
 
-    string strImg;       // 卡牌图片
-    int nArmsID;         // 关联的武器ID
+    string strImg;       // Card image
+    int nArmsID;         // Card ID
 };
 
-// 卡牌数据管理器
+// Card data manager
 class CCardDtMgr : public CDataBaseMgr
 {
 public:
     CCardDtMgr();
     ~CCardDtMgr();
 
-    void LoadFile(char* pFileName);   // 从文件加载卡牌数据
+    void LoadFile(char* pFileName);   // Load card data from file
 
 private:
 };
 
-// 武器数据结构
+// Arms data structure
 struct SArmsDt : SDataBase
 {
     SArmsDt()
@@ -164,28 +162,28 @@ struct SArmsDt : SDataBase
         strImg = "";
     }
 
-    string strBaseImg;    // 武器基础图片
-    string strImg;        // 武器图片
-    int nAttackID;        // 攻击效果ID
-    int nBulletID;        // 关联的子弹ID
-    vector<int> vecMoney;  // 升级所需金币列表
-    vector<int> vecRange;  // 射程列表
-    vector<float> vecInterval;  // 攻击间隔列表
+    string strBaseImg;    // Base image of the arms
+    string strImg;        // Arms image
+    int nAttackID;        // Attack ID
+    int nBulletID;        // Bullet ID
+    vector<int> vecMoney;  // List of money
+    vector<int> vecRange;  // List of range
+    vector<float> vecInterval;  // List of interval
 };
 
-// 武器数据管理器
+// Arms data manager
 class CArmsDtMgr : public CDataBaseMgr
 {
 public:
     CArmsDtMgr();
     ~CArmsDtMgr();
 
-    void LoadFile(char* pFileName);   // 从文件加载武器数据
+    void LoadFile(char* pFileName);   // Load arms data from file
 
 private:
 };
 
-// 子弹数据结构
+// Bullet data structure
 struct SBulletDt : SDataBase
 {
     SBulletDt()
@@ -199,28 +197,28 @@ struct SBulletDt : SDataBase
         nAck = 0;
     }
 
-    string strImg;       // 子弹图片
-    string strType;      // 子弹类型
-    int nDieID;          // 消失效果ID
-    int nBuffId;         // 关联的Buff ID
-    int nMoveAnimateID;  // 移动动画ID
-    float fSpeed;        // 移动速度
-    int nAck;            // 攻击力
+    string strImg;       // Bullet image
+    string strType;      // Bullet type
+    int nDieID;          // Die ID
+    int nBuffId;         // Buff ID
+    int nMoveAnimateID;  // Move animation ID
+    float fSpeed;        // Movement speed
+    int nAck;            // Acknowledgment
 };
 
-// 子弹数据管理器
+// Bullet data manager
 class CBulletDtMgr : public CDataBaseMgr
 {
 public:
     CBulletDtMgr();
     ~CBulletDtMgr();
 
-    void LoadFile(char* pFileName);   // 从文件加载子弹数据
+    void LoadFile(char* pFileName);   // Load bullet data from file
 
 private:
 };
 
-// Buff数据结构
+// Buff data structure
 struct SBuffDt : SDataBase
 {
     SBuffDt()
@@ -230,19 +228,19 @@ struct SBuffDt : SDataBase
         nAnimateID = 0;
     }
 
-    int nValue;          // Buff数值
-    float fTime;         // Buff持续时间
-    int nAnimateID;      // Buff动画ID
+    int nValue;          // Buff value
+    float fTime;         // Buff time
+    int nAnimateID;      // Buff ID
 };
 
-// Buff数据管理器
+// Buff data manager
 class CBuffDtMgr : public CDataBaseMgr
 {
 public:
     CBuffDtMgr();
     ~CBuffDtMgr();
 
-    void LoadFile(char* pFileName);   // 从文件加载Buff数据
+    void LoadFile(char* pFileName);   // Load buff data from file
 
 private:
 };

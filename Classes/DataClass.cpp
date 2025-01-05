@@ -5,54 +5,54 @@
 USING_NS_CC;
 using namespace rapidjson;
 
-// 关卡数据管理器构造函数
+// Level data manager constructor
 CLevelDtMgr::CLevelDtMgr()
 {
 	m_nCurIndex = 0;
 	m_nLockLevel = 1;
 }
 
-// 关卡数据管理器析构函数
+// Level data manager destructor
 CLevelDtMgr::~CLevelDtMgr()
 {
 }
 
-// 从文件加载关卡数据
+// Load level data from file
 void CLevelDtMgr::LoadFile(char* pFileName)
 {
-	// 读取文件内容
+	// Read file content
 	string strData = FileUtils::getInstance()->getStringFromFile(pFileName);
 	Document Doc;
 	Doc.Parse(strData.c_str());
 
-	// 解析 JSON 数据
+	// Parse JSON data
 	for (int i = 0; i < Doc.Size(); i++)
 	{
 		SLevelDt* pData = new SLevelDt();
 		rapidjson::Value& vData = Doc[i];
 
-		// 填充关卡数据
+		// Load level data
 		pData->nID = vData["id"].GetInt();
 		pData->strViewImg = vData["viewimg"].GetString();
 		pData->strMapImg = vData["mapimg"].GetString();
 		pData->strCardView = vData["CardView"].GetString();
 		pData->nStartMoney = vData["startMoney"].GetInt();
 
-		// 解析 MonsterID 列表
+		// Load MonsterID list
 		rapidjson::Value& vMonsterID = vData["MonsterID"];
 		for (int j = 0; j < vMonsterID.Size(); j++)
 		{
 			pData->MonsterID.push_back(vMonsterID[j].GetInt());
 		}
 
-		// 解析 CardID 列表
+		// Load CardID list
 		rapidjson::Value& vCardID = vData["CardID"];
 		for (int m = 0; m < vCardID.Size(); m++)
 		{
 			pData->CardID.push_back(vCardID[m].GetInt());
 		}
 
-		// 解析 vecWave 列表
+		// Load Wave list
 		rapidjson::Value& vWave = vData["wave"];
 		for (int m = 0; m < vWave.Size(); m++)
 		{
@@ -63,31 +63,31 @@ void CLevelDtMgr::LoadFile(char* pFileName)
 	}
 }
 
-// 动画数据管理器构造函数
+// Animate data manager constructor
 CAnimateDtMgr::CAnimateDtMgr()
 {
 }
 
-// 动画数据管理器析构函数
+// Animate data manager destructor
 CAnimateDtMgr::~CAnimateDtMgr()
 {
 }
 
-// 从文件加载动画数据
+// Load animate data from file
 void CAnimateDtMgr::LoadFile(char* pFileName)
 {
-	// 读取文件内容
+	// Read file content
 	string strData = FileUtils::getInstance()->getStringFromFile(pFileName);
 	Document Doc;
 	Doc.Parse(strData.c_str());
 
-	// 解析 JSON 数据
+	// Parse JSON data
 	for (int i = 0; i < Doc.Size(); i++)
 	{
 		SAniMateDt* pData = new SAniMateDt();
 		rapidjson::Value& vData = Doc[i];
 
-		// 填充动画数据
+		// Load animate data
 		pData->nID = vData["id"].GetInt();
 		pData->nCount = vData["count"].GetInt();
 		pData->strName = vData["name"].GetString();
@@ -96,33 +96,33 @@ void CAnimateDtMgr::LoadFile(char* pFileName)
 	}
 }
 
-// 怪物数据管理器构造函数
+// Monster data manager constructor
 CMonsterDtMgr::CMonsterDtMgr()
 {
 
 }
 
-// 怪物数据管理器析构函数
+// Monster data manager destructor
 CMonsterDtMgr::~CMonsterDtMgr()
 {
 
 }
 
-// 从文件加载怪物数据
+// Load monster data from file
 void CMonsterDtMgr::LoadFile(char* pFileName)
 {
-	// 读取文件内容
+	// Read file content
 	string strData = FileUtils::getInstance()->getStringFromFile(pFileName);
 	Document Doc;
 	Doc.Parse(strData.c_str());
 
-	// 解析 JSON 数据
+	// Parse JSON data
 	for (int i = 0; i < Doc.Size(); i++)
 	{
 		SMonsterDt* pData = new SMonsterDt();
 		rapidjson::Value& vData = Doc[i];
 
-		// 填充怪物数据
+		// Load monster data
 		pData->nID = vData["id"].GetInt();
 		pData->strImg = vData["img"].GetString();
 		pData->fSpeed = vData["speed"].GetDouble();
@@ -133,33 +133,33 @@ void CMonsterDtMgr::LoadFile(char* pFileName)
 	}
 }
 
-// 卡牌数据管理器构造函数
+// Card data manager constructor
 CCardDtMgr::CCardDtMgr()
 {
 
 }
 
-// 卡牌数据管理器析构函数
+// Card data manager destructor
 CCardDtMgr::~CCardDtMgr()
 {
 
 }
 
-// 从文件加载卡牌数据
+// Load card data from file
 void CCardDtMgr::LoadFile(char* pFileName)
 {
-	// 读取文件内容
+	// Read file content
 	string strData = FileUtils::getInstance()->getStringFromFile(pFileName);
 	Document Doc;
 	Doc.Parse(strData.c_str());
 
-	// 解析 JSON 数据
+	// Parse JSON data
 	for (int i = 0; i < Doc.Size(); i++)
 	{
 		SCardDt* pData = new SCardDt();
 		rapidjson::Value& vData = Doc[i];
 
-		// 填充卡牌数据
+		// Load card data
 		pData->nID = vData["id"].GetInt();
 		pData->strImg = vData["img"].GetString();
 		pData->nArmsID = vData["ArmsID"].GetInt();
@@ -168,40 +168,40 @@ void CCardDtMgr::LoadFile(char* pFileName)
 	}
 }
 
-// 武器数据管理器构造函数
+// Arms data manager constructor
 CArmsDtMgr::CArmsDtMgr()
 {
 
 }
 
-// 武器数据管理器析构函数
+// Arms data manager destructor
 CArmsDtMgr::~CArmsDtMgr()
 {
 
 }
 
-// 从文件加载武器数据
+// Load arms data from file
 void CArmsDtMgr::LoadFile(char* pFileName)
 {
-	// 读取文件内容
+	// Read file content
 	string strData = FileUtils::getInstance()->getStringFromFile(pFileName);
 	Document Doc;
 	Doc.Parse(strData.c_str());
 
-	// 解析 JSON 数据
+	// Parse JSON data
 	for (int i = 0; i < Doc.Size(); i++)
 	{
 		SArmsDt* pData = new SArmsDt();
 		rapidjson::Value& vData = Doc[i];
 
-		// 填充武器数据
+		// Load arms data
 		pData->nID = vData["id"].GetInt();
 		pData->strImg = vData["Img"].GetString();
 		pData->nAttackID = vData["AttackID"].GetInt();
 		pData->strBaseImg = vData["BaseImg"].GetString();
 		pData->nBulletID = vData["BulletID"].GetInt();
 
-		// 解析 Money、Range、Interval 列表
+		// Load Money, Range, Interval lists
 		rapidjson::Value& vMoney = vData["upgrade"];
 		for (int i = 0; i < vMoney.Size(); i++)
 		{
@@ -224,33 +224,33 @@ void CArmsDtMgr::LoadFile(char* pFileName)
 	}
 }
 
-// 子弹数据管理器构造函数
+// Bullet data manager constructor
 CBulletDtMgr::CBulletDtMgr()
 {
 
 }
 
-// 子弹数据管理器析构函数
+// Bullet data manager destructor
 CBulletDtMgr::~CBulletDtMgr()
 {
 
 }
 
-// 从文件加载子弹数据
+// Load bullet data from file
 void CBulletDtMgr::LoadFile(char* pFileName)
 {
-	// 读取文件内容
+	// Read file content
 	string strData = FileUtils::getInstance()->getStringFromFile(pFileName);
 	Document Doc;
 	Doc.Parse(strData.c_str());
 
-	// 解析 JSON 数据
+	// Parse JSON data
 	for (int i = 0; i < Doc.Size(); i++)
 	{
 		SBulletDt* pData = new SBulletDt();
 		rapidjson::Value& vData = Doc[i];
 
-		// 填充子弹数据
+		// Load bullet data
 		pData->nID = vData["id"].GetInt();
 		pData->strImg = vData["Img"].GetString();
 		pData->strType = vData["Type"].GetString();
@@ -264,33 +264,33 @@ void CBulletDtMgr::LoadFile(char* pFileName)
 	}
 }
 
-// Buff数据管理器构造函数
+// Buff data manager constructor
 CBuffDtMgr::CBuffDtMgr()
 {
 
 }
 
-// Buff数据管理器析构函数
+// Buff data manager destructor
 CBuffDtMgr::~CBuffDtMgr()
 {
 
 }
 
-// 从文件加载Buff数据
+// Load buff data from file
 void CBuffDtMgr::LoadFile(char* pFileName)
 {
-	// 读取文件内容
+	// Read file content
 	string strData = FileUtils::getInstance()->getStringFromFile(pFileName);
 	Document Doc;
 	Doc.Parse(strData.c_str());
 
-	// 解析 JSON 数据
+	// Parse JSON data
 	for (int i = 0; i < Doc.Size(); i++)
 	{
 		SBuffDt* pData = new SBuffDt();
 		rapidjson::Value& vData = Doc[i];
 
-		// 填充Buff数据
+		// Load buff data
 		pData->nID = vData["id"].GetInt();
 		pData->nValue = vData["value"].GetInt();
 		pData->fTime = vData["time"].GetDouble();

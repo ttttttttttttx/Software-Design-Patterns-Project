@@ -10,7 +10,7 @@
 USING_NS_CC;
 
 // Refactored with Decorator Pattern
-// 装饰器抽象类
+// Base Decorator class
 class ArmsDecorator : public ArmsComponent 
 {
 protected:
@@ -23,7 +23,7 @@ public:
     virtual ~ArmsDecorator() = default;
 };
 
-// 改变武器外观的装饰器
+// Decorator for appearance modifications
 class AppearanceDecorator : public ArmsDecorator 
 {
 public:
@@ -31,7 +31,7 @@ public:
     void upgrade() override;
 };
 
-// 改变暴击率的装饰器
+// Decorator for critical hit rate modifications
 class CritDecorator : public ArmsDecorator {
 public:
     explicit CritDecorator(ArmsComponent* component, float increase) : ArmsDecorator(component), critIncrease(increase) {}
@@ -41,7 +41,7 @@ private:
     float critIncrease;
 };
 
-// 改变伤害的装饰器
+// Decorator for damage modifications
 class DamageDecorator : public ArmsDecorator {
 public:
     explicit DamageDecorator(ArmsComponent* component, float increase) : ArmsDecorator(component), damageIncrease(increase) {}
@@ -51,7 +51,7 @@ private:
     float damageIncrease;
 };
 
-// 改变射程和射速的装饰器
+// Decorator for range and attack speed modifications
 class RangeAndSpeedDecorator : public ArmsDecorator {
 public:
     explicit RangeAndSpeedDecorator(ArmsComponent* component, float rangeIncrease, float speedIncrease)

@@ -8,12 +8,12 @@ USING_NS_CC;
 
 using namespace cocos2d::experimental;
 using namespace cocos2d::ui;
-/*错误处理*/
+
 static void problemLoading(const char* filename)
 {
 	printf("Error while loading: %s\n", filename);
 }
-/*工具函数*/
+
 int find(float page[], int N, float x) {
 	for (int i = 0; i < N; i++) {
 		if (x >= page[i]) {
@@ -22,11 +22,13 @@ int find(float page[], int N, float x) {
 	}
 	return -1;
 }
-/*****************************  HelperScene类  ***********************************************************/
+
+/*****************************  HelperScene  ***********************************************************/
 cocos2d::Scene* HelperScene::createScene()
 {
 	return HelperScene::create();
 }
+
 bool HelperScene::init()
 {
 	if (!Scene::init()) {
@@ -36,28 +38,25 @@ bool HelperScene::init()
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-	/************************************************  背景创建  *******************************************************/
 	auto background_image = Sprite::create("/HelperScene/help_3-hd_bg.png");
 	background_image->setPosition(Vec2(origin.x + visibleSize.width / 2,
 		origin.y + visibleSize.height / 2));
 	this->addChild(background_image);
-	//help_layer
+
 	auto help_layer = HelpLayer::createLayer();
 	help_layer->setName("HelpLayer");
 	this->addChild(help_layer);
-	//monster_layer 
+
 	auto monster_layer = MonsterLayer::createLayer();
 	monster_layer->setName("MonsterLayer");
-	monster_layer->setVisible(false);//初始化时被设置为不可见状态
+	monster_layer->setVisible(false);
 	this->addChild(monster_layer);
-	// tower_layer
+
 	auto tower_layer = TowerLayer::createLayer();
 	tower_layer->setName("TowerLayer");
-	tower_layer->setVisible(false);//初始化时被设置为不可见状态
+	tower_layer->setVisible(false);
 	this->addChild(tower_layer);
 
-
-	//home键
 	auto menu_all = Menu::create();
 	menu_all->setPosition(Vec2::ZERO);
 
@@ -66,14 +65,12 @@ bool HelperScene::init()
 		origin.y + visibleSize.height * 0.92));
 	menu_all->addChild(home);
 	this->addChild(menu_all);
-	/***********************************************选项卡****************************************************/
-	//help选项卡
+
 	auto help_btn = ui::Button::create("/HelperScene/help_1-hd-33_normal.PNG", "/HelperScene/help_1-hd-33_normal.PNG", "/HelperScene/help_1-hd_33.PNG");
 	help_btn->setName("HelpBtn");
 	help_btn->setScale(0.8);
 	help_btn->setPosition(Vec2(origin.x + visibleSize.width*0.31,
 		origin.y + visibleSize.height*0.925));
-	//help_btn->addTouchEventListener(CC_CALLBACK_1(HelperScene::goto_help, this));
 	help_btn->addTouchEventListener([=](Ref* sender, ui::Widget::TouchEventType type) {
 		if (type == ui::Widget::TouchEventType::BEGAN) {
 			AudioEngine::play2d("sound/Select.mp3", false, 1.2f);
@@ -81,15 +78,14 @@ bool HelperScene::init()
 		else if (type == ui::Widget::TouchEventType::ENDED) {
 			goto_help(sender);
 		}
-		});
+	});
 	help_btn->setEnabled(false);
 	this->addChild(help_btn);
-	//monster选项卡
+
 	auto monster_btn = ui::Button::create("/HelperScene/help_1-hd_71_normal.PNG", "/HelperScene/help_1-hd_71_normal.PNG", "/HelperScene/help_1-hd_71.png");
 	monster_btn->setName("MonsterBtn");
 	monster_btn->setPosition(Vec2(origin.x + visibleSize.width / 2,
 		origin.y + visibleSize.height*0.922));
-	//monster_btn->addTouchEventListener(CC_CALLBACK_1(HelperScene::goto_monster, this));
 	monster_btn->addTouchEventListener([=](Ref* sender, ui::Widget::TouchEventType type) {
 		if (type == ui::Widget::TouchEventType::BEGAN) {
 			AudioEngine::play2d("sound/Select.mp3", false, 1.2f);
@@ -97,35 +93,34 @@ bool HelperScene::init()
 		else if (type == ui::Widget::TouchEventType::ENDED) {
 			goto_monsters(sender);
 		}
-		});
+	});
 	this->addChild(monster_btn);
-	//person选项卡
+
 	auto tower_btn = ui::Button::create("/HelperScene/help_1-hd_66_normal.PNG", "/HelperScene/help_1-hd_66_normal.PNG", "/HelperScene/help_1-hd_66.PNG");
 	tower_btn->setName("TowerBtn");
 	tower_btn->setPosition(Vec2(origin.x + visibleSize.width*0.69,
 		origin.y + visibleSize.height*0.923));
-	//tower_btn->addTouchEventListener(CC_CALLBACK_1(HelperScene::goto_tower, this));
 	tower_btn->addTouchEventListener([=](Ref* sender, ui::Widget::TouchEventType type) {
 		if (type == ui::Widget::TouchEventType::BEGAN) {
 			AudioEngine::play2d("sound/Select.mp3", false, 1.2f);
-			goto_towers(sender); // 在按下时直接执行函数
+			goto_towers(sender);
 		}
-		});
+	});
 
 	this->addChild(tower_btn);
 
-
 	return true;
 }
+
 void HelperScene::goto_home(Ref* psender)
 {
 	AudioEngine::play2d("sound/Select.mp3", false, 1.2f);
 	Scene* menu_scene = CGameMenu::createScene();
 	Director::getInstance()->replaceScene(TransitionFade::create(0.5, menu_scene, Color3B::BLACK));
 }
+
 void HelperScene::goto_help(Ref* psender)
 {
-	//AudioEngine::play2d("sound/Select.mp3", false, 1.2f);
 	Node* help = this->getChildByName("HelpLayer");
 	Node* monster = this->getChildByName("MonsterLayer");
 	Node* tower = this->getChildByName("TowerLayer");
@@ -148,9 +143,9 @@ void HelperScene::goto_help(Ref* psender)
 	Node* tower_btn = this->getChildByName("TowerBtn");
 	static_cast<ui::Button*>(tower_btn)->setEnabled(true);
 }
+
 void HelperScene::goto_monsters(Ref* psender)
 {
-	//AudioEngine::play2d("sound/Select.mp3", false, 1.2f);
 	Node* help = this->getChildByName("HelpLayer");
 	Node* monster = this->getChildByName("MonsterLayer");
 	Node* tower = this->getChildByName("TowerLayer");
@@ -167,6 +162,7 @@ void HelperScene::goto_monsters(Ref* psender)
 	Node* tower_btn = this->getChildByName("TowerBtn");
 	static_cast<ui::Button*>(tower_btn)->setEnabled(true);
 }
+
 void HelperScene::goto_towers(Ref* psender)
 {
 	AudioEngine::play2d("sound/Select.mp3", false, 1.2f);
@@ -192,11 +188,13 @@ void HelperScene::goto_towers(Ref* psender)
 	tower_btn->setScale(0.8);
 	static_cast<ui::Button*>(tower_btn)->setEnabled(false);
 }
-/*************************************** HelpLayer类  ******************************************/
+
+/*************************************** HelpLayer  ******************************************/
 cocos2d::Layer* HelpLayer::createLayer()
 {
 	return HelpLayer::create();
 }
+
 bool HelpLayer::init()
 {
 	if (!Layer::init()) {
@@ -205,31 +203,31 @@ bool HelpLayer::init()
 	this->setName("HelpLayer");
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
-	/**************************  滑动层  ********************************/
+	/**************************  锟斤拷锟斤拷锟斤拷  ********************************/
 	auto toplayer = Layer::create();
 	toplayer->setName("toplayer");
-	/**************************  第一页  ******************************/
+	/**************************  锟斤拷一页  ******************************/
 	auto help_1_image = Sprite::create("/HelperScene/help_3-hd_1.png");
 	help_1_image->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height *0.55));
 	toplayer->addChild(help_1_image);
 	auto help_1_txt = Sprite::create("/HelperScene/help_1-hd_73.PNG");
 	help_1_txt->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height * 0.22));
 	toplayer->addChild(help_1_txt);
-	/**************************  第二页  ******************************/
+	/**************************  锟节讹拷页  ******************************/
 	auto help_2_image = Sprite::create("/HelperScene/help_3-hd_2.png");
 	help_2_image->setPosition(Vec2(origin.x + visibleSize.width * 1.5, origin.y + visibleSize.height *0.55));
 	toplayer->addChild(help_2_image);
 	auto help_2_txt = Sprite::create("/HelperScene/help_1-hd_4.PNG");
 	help_2_txt->setPosition(Vec2(origin.x + visibleSize.width *1.5, origin.y + visibleSize.height *0.22));
 	toplayer->addChild(help_2_txt);
-	/**************************  第三页  ******************************/
+	/**************************  锟斤拷锟斤拷页  ******************************/
 	auto help_3_image = Sprite::create("/HelperScene/help_3-hd_3.png");
 	help_3_image->setPosition(Vec2(origin.x + visibleSize.width * 2.5, origin.y + visibleSize.height *0.55));
 	toplayer->addChild(help_3_image);
 	auto help_3_txt = Sprite::create("/HelperScene/help_1-hd_50.PNG");
 	help_3_txt->setPosition(Vec2(origin.x + visibleSize.width * 2.5, origin.y + visibleSize.height *0.22));
 	toplayer->addChild(help_3_txt);
-	/**************************  第四页  ******************************/
+	/**************************  锟斤拷锟斤拷页  ******************************/
 	auto help_4_image = Sprite::create("/HelperScene/help_3-hd_4.png");
 	help_4_image->setPosition(Vec2(origin.x + visibleSize.width * 3.5, origin.y + visibleSize.height *0.55));
 	toplayer->addChild(help_4_image);
@@ -238,11 +236,11 @@ bool HelpLayer::init()
 	toplayer->addChild(help_4_txt);
 	this->addChild(toplayer);
 
-	/***************************  页码  ******************************/
-	auto page_num_image = Sprite::create("/HelperScene/help_1-hd_0.PNG");//创建了一个 Sprite 对象，用于显示页码的背景图片
+	/***************************  页锟斤拷  ******************************/
+	auto page_num_image = Sprite::create("/HelperScene/help_1-hd_0.PNG");
 	page_num_image->setPosition(Vec2(origin.x + visibleSize.width *0.51, origin.y + visibleSize.height * 0.06));
 	this->addChild(page_num_image);
-	auto num_divide = Sprite::create("/HelperScene/num_-1.png");//标记图片，用于表示页码之间的分隔符和最大页码数
+	auto num_divide = Sprite::create("/HelperScene/num_-1.png");
 	num_divide->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height * 0.062));
 	this->addChild(num_divide);
 	num_divide->setScale(1.4);
@@ -250,28 +248,24 @@ bool HelpLayer::init()
 	num_4->setPosition(Vec2(origin.x + visibleSize.width / 2 + num_4->getContentSize().width * 2, origin.y + visibleSize.height * 0.062));
 	this->addChild(num_4);
 	num_4->setScale(1.4);
-	auto page_num = Sprite::create("/HelperScene/num_1.png");//创建了一个 Sprite 对象用于显示当前页码的数字图片
+	auto page_num = Sprite::create("/HelperScene/num_1.png");
 	page_num->setName("page_num1");
 	page_num->setScale(1.4);
 	page_num->setPosition(Vec2(origin.x + visibleSize.width / 2 - page_num->getContentSize().width * 3, origin.y + visibleSize.height * 0.062));
 	this->addChild(page_num);
-	/****************************  滑动实现  *****************************/
-	auto listener = EventListenerTouchOneByOne::create();//创建了一个触摸监听器
-	//onTouchBegan 函数捕获触摸开始事件，并返回 true，表示事件已被处理
+	/****************************  锟斤拷锟斤拷实锟斤拷  *****************************/
+	auto listener = EventListenerTouchOneByOne::create();
 	listener->onTouchBegan = [](Touch* touch, Event* event) {
 		return true;
 	};
-	//onTouchMoved 函数捕获触摸移动事件，计算出触摸点在水平方向上的位移 distance，并通过修改 toplayer 的 X 位置来实现滑动效果
 	listener->onTouchMoved = [this,toplayer](Touch* touch, Event* event) {
 		float distance = touch->getLocation().x - touch->getPreviousLocation().x;
 		toplayer->setPositionX(toplayer->getPositionX() + distance);
 	};
-	//onTouchEnded 函数捕获触摸结束事件，计算触摸点的起始位置与结束位置之间的水平位移 distance。
 	listener->onTouchEnded = [this,toplayer,visibleSize](Touch* touch, Event* event) {
 		float distance = touch->getLocation().x - touch->getStartLocation().x;
 		float page[4] = { 0,-visibleSize.width,-2 * visibleSize.width,-3 * visibleSize.width };
 		if (distance > visibleSize.width / 6) {
-		//如果位移超过屏幕宽度的六分之一，且向右滑动
 			if (toplayer->getPosition().x > 0) {
 				toplayer->runAction(MoveTo::create(0.1, Vec2(page[0], 0)));
 			}
@@ -294,7 +288,6 @@ bool HelpLayer::init()
 			}
 		}
 		else if (distance < -visibleSize.width / 6) {
-		//如果位移超过屏幕宽度的六分之一，且向左滑动
 			if (toplayer->getPosition().x < page[3]) {
 				toplayer->runAction(MoveTo::create(0.1, Vec2(page[3], 0)));
 			}
@@ -317,7 +310,6 @@ bool HelpLayer::init()
 			}
 		}
 		else {
-			//如果位移没有达到六分之一屏幕宽度
 			if (distance > 0) {
 				if (toplayer->getPosition().x < 0 && toplayer->getPosition().x >page[1]) {
 					toplayer->runAction(MoveTo::create(0.1, Vec2(page[1], 0)));
@@ -357,11 +349,13 @@ bool HelpLayer::init()
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 	return true;
 }
-/**************************************  MonsterLayer类  ************************************/
+
+/**************************************  MonsterLayer  ************************************/
 cocos2d::Layer* MonsterLayer::createLayer()
 {
 	return MonsterLayer::create();
 }
+
 bool MonsterLayer::init()
 {
 	if (!Layer::init()) {
@@ -372,13 +366,11 @@ bool MonsterLayer::init()
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-	//背景
 	auto bg_image = Sprite::create("/HelperScene/help_3-hd_monster.png");
 	bg_image->setPosition(Vec2(origin.x + visibleSize.width / 2,
 		origin.y + visibleSize.height*0.45));
 	this->addChild(bg_image);
 
-	//文字
 	auto little_monster_txt = Sprite::create("/HelperScene/help_1-hd_14.PNG");
 	little_monster_txt->setPosition(Vec2(origin.x + visibleSize.width * 0.2,
 		origin.y + visibleSize.height *0.45));
@@ -419,11 +411,13 @@ bool MonsterLayer::init()
 
 	return true;
 }
-/*************************************  TowerLayer类  ***********************************/
+
+/*************************************  TowerLayer  ***********************************/
 cocos2d::Layer* TowerLayer::createLayer()
 {
 	return TowerLayer::create();
 }
+
 bool TowerLayer::init()
 {
 	if (!Layer::create()) {
@@ -432,84 +426,80 @@ bool TowerLayer::init()
 	this->setName("TowerLayer");
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
-	/**************************  滑动层  ********************************/
-	auto toplayer2 = Layer::create();//创建了新的图层对象toplayer2,用于展示滑动的内容
+	/**************************  锟斤拷锟斤拷锟斤拷  ********************************/
+	auto toplayer2 = Layer::create();
 	toplayer2->setName("toplayer2");
-	/**************************  第1页  ******************************/
+	/**************************  1页  ******************************/
 	auto tower_1 = Sprite::create("/HelperScene/tower_1.png");
 	tower_1->setPosition(Vec2(origin.x + visibleSize.width / 2, 
 		origin.y + visibleSize.height * 0.5));
 	toplayer2->addChild(tower_1);
-	/**************************  第2页  ******************************/
+	/**************************  2页  ******************************/
 	auto tower_2 = Sprite::create("/HelperScene/tower_2.png");
 	tower_2->setPosition(Vec2(origin.x + visibleSize.width * 1.5, 
 		origin.y + visibleSize.height * 0.5));
 	toplayer2->addChild(tower_2);	
-	/**************************  第3页  ******************************/
+	/**************************  3页  ******************************/
 	auto tower_3 = Sprite::create("/HelperScene/tower_3.png");
 	tower_3->setPosition(Vec2(origin.x + visibleSize.width * 2.5, 
 		origin.y + visibleSize.height * 0.5));
 	toplayer2->addChild(tower_3);	
-	/**************************  第4页  ******************************/
+	/**************************  4页  ******************************/
 	auto tower_4 = Sprite::create("/HelperScene/tower_4.png");
 	tower_4->setPosition(Vec2(origin.x + visibleSize.width * 3.5, 
 		origin.y + visibleSize.height * 0.5));
 	toplayer2->addChild(tower_4);	
-	/**************************  第5页  ******************************/
+	/**************************  5页  ******************************/
 	auto tower_5 = Sprite::create("/HelperScene/tower_5.png");
 	tower_5->setPosition(Vec2(origin.x + visibleSize.width * 4.5, 
 		origin.y + visibleSize.height * 0.5));
 	toplayer2->addChild(tower_5);	
-	/**************************  第6页  ******************************/
+	/**************************  6页  ******************************/
 	auto tower_6 = Sprite::create("/HelperScene/tower_6.png");
 	tower_6->setPosition(Vec2(origin.x + visibleSize.width * 5.5,
 		origin.y + visibleSize.height * 0.5));
 	toplayer2->addChild(tower_6);	
-	/**************************  第7页  ******************************/
+	/**************************  7页  ******************************/
 	auto tower_7 = Sprite::create("/HelperScene/tower_7.png");
 	tower_7->setPosition(Vec2(origin.x + visibleSize.width * 6.5, 
 		origin.y + visibleSize.height * 0.5));
 	toplayer2->addChild(tower_7);	
-	/**************************  第8页  ******************************/
+	/**************************  8页  ******************************/
 	auto tower_8 = Sprite::create("/HelperScene/tower_8.png");
 	tower_8->setPosition(Vec2(origin.x + visibleSize.width * 7.5, 
 		origin.y + visibleSize.height * 0.5));
 	toplayer2->addChild(tower_8);	
-	/**************************  第9页  ******************************/
+	/**************************  9页  ******************************/
 	auto tower_9 = Sprite::create("/HelperScene/tower_9.png");
 	tower_9->setPosition(Vec2(origin.x + visibleSize.width * 8.5, 
 		origin.y + visibleSize.height * 0.5));
 	toplayer2->addChild(tower_9);	
-	/**************************  第10页  ******************************/
+	/**************************  10页  ******************************/
 	auto tower_10 = Sprite::create("/HelperScene/tower_10.png");
 	tower_10->setPosition(Vec2(origin.x + visibleSize.width * 9.5,
 		origin.y + visibleSize.height * 0.5));
 	toplayer2->addChild(tower_10);
 	this->addChild(toplayer2);
-	/***************************  页码  ******************************/
-	//page_num_image 是用于显示页码的背景图片的精灵对象
+	/***************************  页锟斤拷  ******************************/
 	auto page_num_image = Sprite::create("/HelperScene/help_1-hd_0.PNG");
 	page_num_image->setPosition(Vec2(origin.x + visibleSize.width * 0.51, origin.y + visibleSize.height * 0.06));
 	this->addChild(page_num_image);
-	//num_divide 是用于显示分隔符的精灵对象
 	auto divide_num = Sprite::create("/HelperScene/num_-1.png");
 	divide_num->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height * 0.062));
 	this->addChild(divide_num);
 	divide_num->setScale(1.4);
-	//num_10 是显示数字 "10" 的精灵对象,表示总页码为10
 	auto num_10 = Sprite::create("/HelperScene/num_10.png");
 	num_10->setPosition(Vec2(origin.x + visibleSize.width / 2 + num_10->getContentSize().width, 
 		origin.y + visibleSize.height * 0.062));
 	this->addChild(num_10);
 	num_10->setScale(1.4);
-	//page_num 是用于显示当前页码的精灵对象
 	auto page_num = Sprite::create("/HelperScene/num_1.png");
 	page_num->setName("page_num2");
 	page_num->setScale(1.4);
 	page_num->setPosition(Vec2(origin.x + visibleSize.width / 2 - page_num->getContentSize().width * 3,
 		origin.y + visibleSize.height * 0.062));
 	this->addChild(page_num);
-	/****************************  滑动实现  *****************************/
+	/****************************  锟斤拷锟斤拷实锟斤拷  *****************************/
 	auto listener2 = EventListenerTouchOneByOne::create();
 	listener2->onTouchBegan = [](Touch* touch, Event* event) {
 		return true;

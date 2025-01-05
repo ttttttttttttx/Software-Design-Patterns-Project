@@ -18,18 +18,18 @@ public:
 	void setCurWave(int nCurWave);
 private:
 	int m_nMoney;
-	LabelAtlas* m_pMoney;//金币
-	Node* m_pWave;//波数挂载节点
-	Sprite* m_pPause;//暂停中
-	LabelAtlas* m_pMaxWave;//总波数
-	LabelAtlas* m_pCurWaveLow;//当前波数个位
-	LabelAtlas* m_pCurWaveHigh;//当前波数十位
+	LabelAtlas* m_pMoney;
+	Node* m_pWave;
+	Sprite* m_pPause;
+	LabelAtlas* m_pMaxWave;
+	LabelAtlas* m_pCurWaveLow;
+	LabelAtlas* m_pCurWaveHigh;
 	Node* m_pTime;
 	Sprite* m_pTimeNumber;
 	int m_nTime;
 	Sprite* m_pCountDown;
 	Sprite* m_pMenu;
-	MenuItemToggle* m_pPauseResum;//暂停恢复按钮
+	MenuItemToggle* m_pPauseResum;
 };
 
 #define WINSIZE Director::getInstance()->getVisibleSize()

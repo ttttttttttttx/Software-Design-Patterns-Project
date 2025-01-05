@@ -5,7 +5,7 @@ USING_NS_CC;
 class CGameMenu : public cocos2d::Scene
 {
 public:
-    static cocos2d::Scene* createScene();//¼Ì³Ð´´½¨³¡¾°
+    static cocos2d::Scene* createScene();=
 
     virtual bool init();
 

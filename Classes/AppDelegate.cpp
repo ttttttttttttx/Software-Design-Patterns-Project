@@ -39,7 +39,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 
     director->getOpenGLView()->setDesignResolutionSize(960, 640, ResolutionPolicy::SHOW_ALL);
 
-    // ¹Ø±ÕFPS
+    // Turn off FPS display
     director->setDisplayStats(false);
 
     // set FPS. the default value is 1.0/60 if you don't call this
@@ -48,9 +48,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     FileUtils::getInstance()->addSearchPath("res");
 
     // create a scene. it's an autorelease object
-
-	CLoadData* pData = new CLoadData();
-	CC_SAFE_DELETE(pData);
+    CLoadData* pData = new CLoadData();
+    CC_SAFE_DELETE(pData);
 
     auto scene = CGameMenu::create();
 

@@ -6,7 +6,7 @@
 class HelperScene : public cocos2d::Scene
 {
 public:
-    static cocos2d::Scene* createScene();//继承创建场景
+    static cocos2d::Scene* createScene();
 
     virtual bool init();
 
@@ -23,7 +23,7 @@ public:
 
 class HelpLayer : public cocos2d::Layer {
 public:
-    static cocos2d::Layer* createLayer();//继承创建场景
+    static cocos2d::Layer* createLayer();
 
     virtual bool init();
 
@@ -32,7 +32,7 @@ public:
 
 class MonsterLayer :public cocos2d::Layer {
 public:
-    static cocos2d::Layer* createLayer();//继承创建场景
+    static cocos2d::Layer* createLayer();
 
     virtual bool init();
 
@@ -41,7 +41,7 @@ public:
 
 class TowerLayer :public cocos2d::Layer {
 public:
-    static cocos2d::Layer* createLayer();//继承创建场景
+    static cocos2d::Layer* createLayer();
 
     virtual bool init();
 

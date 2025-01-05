@@ -11,19 +11,19 @@ class CDataMgr
 public:
     ~CDataMgr();
 
-    // 获取数据管理器单例
+    // Get data manager instance
     static CDataMgr* getInstance();
 
-    // 添加数据管理器
+    // Add data manager
     void addData(string strName, CDataBaseMgr* pDataMgr);
 
-    // 获取数据管理器
+    // Get data manager
     CDataBaseMgr* getData(string strName);
 
 private:
-    CDataMgr();  // 构造函数，为了确保外部无法直接实例化该类
-    static CDataMgr* m_spInstance;  // 静态指针，用于保存单例实例
-    map<string, CDataBaseMgr*> m_mapDatas;  // 保存数据管理器的容器
+    CDataMgr();  // Private constructor to ensure singleton pattern
+    static CDataMgr* m_spInstance;  // Static pointer to store singleton instance
+    map<string, CDataBaseMgr*> m_mapDatas;  // Map to store data managers
 };
 
 #endif

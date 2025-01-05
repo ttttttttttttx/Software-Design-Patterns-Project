@@ -12,26 +12,26 @@ USING_NS_CC;
 class MyCard : public Sprite
 {
 public:
-	static MyCard* createMoneyCard(SCardDt* pCard); //创建一个实例
+	static MyCard* createMoneyCard(SCardDt* pCard); // Create an instance
 	void ifMoney(int nMoney);
 	CC_SYNTHESIZE(int, myArmsID, ArmsID);
 	CC_SYNTHESIZE(int, myArmsMoney, Money);
 private:
-	string CardName;  //卡片的名称
+	string CardName;  // Card image name
 };
 
 class ArmsCard : public Node
 {
 public:
 	virtual bool init();
-	void createAllArmsCard();                  //创建卡片
-	void clickEventFirst(Vec2 clickPos);     //第一次点击事件
-	void clickEventSecond(Vec2 clickPos);     //第二次点击事件
+	void createAllArmsCard();                  // Create all cards
+	void clickEventFirst(Vec2 clickPos);       // First click event
+	void clickEventSecond(Vec2 clickPos);      // Second click event
 	void addTouch();
 	CREATE_FUNC(ArmsCard);
 private:
 	Sprite* cardContainers;
-	std::vector<MyCard*> allCard;      //存储卡片对象的向量
+	std::vector<MyCard*> allCard;      // Store all card instances
 }; 
 
 class UpCard : public Node
@@ -45,8 +45,8 @@ public:
 private:
 	Sprite* myUpGrade;
 	Sprite* mySell;
-	Sprite* myRander;//背景圈圈
-	MyArms* nowArms;//武器
+	Sprite* myRander;  // Range indicator
+	MyArms* nowArms;   // Current arms
 };
 
 #endif

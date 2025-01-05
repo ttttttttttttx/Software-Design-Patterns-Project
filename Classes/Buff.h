@@ -6,68 +6,67 @@
 
 using namespace cocos2d;
 
-// 存储Buff相关数据的结构体
+// Structure to store buff data
 struct SData
 {
-	float fTime;    // Buff的持续时间
-	int nValue;     // Buff的数值
-	Sprite* pSprite; // Buff的图像
+	float fTime;     // Duration of the buff
+	int nValue;      // Value of the buff effect
+	Sprite* pSprite; // Sprite for buff visualization
 };
 
-// Buff基类
+// Base Buff class
 class CBuffBase : public Node
 {
 public:
-	// 构造函数
+	// Constructor
 	CBuffBase();
 
-	// 析构函数
+	// Destructor
 	~CBuffBase();
 
-	// 初始化方法，虚函数，由子类实现具体的初始化逻辑
+	// Initialize function, override to implement specific initialization logic
 	virtual bool init();
 
-	// 添加Buff节点到地图上
+	// Add buff node to the map
 	void addBuffNode(Node* pNode, SBuffDt* pBuff);
 
-	// 从地图上移除Buff节点
+	// Remove buff node from the map
 	void removeBuffNode(Node* pNode);
 
-	// 每帧更新方法，虚函数，由子类实现具体的Buff逻辑
+	// Update function called each frame, override to implement specific buff logic
 	virtual void update(float delta);
 
 protected:
-	// 存储地图上所有的Buff节点及其相关数据的Map
+	// Map storing buff nodes and their data
 	std::map<Node*, SData*> m_mapBuff;
 };
 
-// 速度Buff类
+// Speed Buff class
 class CBuffSpeed : public CBuffBase
 {
 public:
-	// 初始化方法，用于设置Buff的初始状态
+	// Initialize the speed buff
 	virtual bool init();
 
-	// 每帧更新方法，用于处理Buff的逻辑，delta表示两帧之间的时间间隔
+	// Update function for speed buff logic
 	virtual void update(float delta);
 
-	// 创建实例的静态方法，使用宏定义实现
+	// Static creation method
 	CREATE_FUNC(CBuffSpeed);
 };
 
-// 伤害Buff类
+// Damage Buff class
 class CBuffHurt : public CBuffBase
 {
 public:
-	// 初始化方法，用于设置Buff的初始状态
+	// Initialize the damage buff
 	virtual bool init();
 
-	// 每帧更新方法，用于处理Buff的逻辑，delta表示两帧之间的时间间隔
+	// Update function for damage buff logic
 	virtual void update(float delta);
 
-	// 创建实例的静态方法，使用宏定义实现
+	// Static creation method
 	CREATE_FUNC(CBuffHurt);
 };
-
 
 #endif

@@ -8,34 +8,33 @@
 #include <iostream>
 USING_NS_CC;
 
-
 // Refactored with Decorator Pattern
-// 武器组件接口
+// Arms Component Interface
 class ArmsComponent : public Node {
 public:
-    virtual void fire() = 0;     // 发射子弹
-    virtual void upgrade() = 0;  // 升级武器
+    virtual void fire() = 0;     // Fire weapon
+    virtual void upgrade() = 0;  // Upgrade weapon
 
-    // 获取/设置暴击率
+    // Get/Set critical hit rate
     virtual float getCritRate() const = 0;
     virtual void setCritRate(float rate) = 0;
 
-    // 获取/设置伤害
+    // Get/Set damage
     virtual float getDamage() const = 0;
     virtual void setDamage(float damage) = 0;
 
-    // 获取/设置射程
+    // Get/Set range
     virtual float getRange() const = 0;
     virtual void setRange(float range) = 0;
 
-    // 获取/设置射速
+    // Get/Set fire rate
     virtual float getFireRate() const = 0;
     virtual void setFireRate(float rate) = 0;
 
     virtual ~ArmsComponent() {}
 };
 
-// 具体武器类
+// Base Arms Class
 class MyArms : public ArmsComponent {
 public:
     CREATE_FUNC(MyArms);
@@ -47,19 +46,19 @@ public:
     CC_SYNTHESIZE(SArmsDt*, myArmsDt, ArmsDt);            
     CC_SYNTHESIZE(CBulletBase*, lastBullet, LastBullet);
 
-    // 暴击率相关方法
+    // Critical hit methods
     float getCritRate() const override { return critRate; }
     void setCritRate(float rate) override { critRate = rate; }
 
-    // 伤害相关方法
+    // Damage methods
     float getDamage() const override { return damage; }
     void setDamage(float damage) override { this->damage = damage; }
 
-    // 射程相关方法
+    // Range methods
     float getRange() const override { return range; }
     void setRange(float range) override { this->range = range; }
 
-    // 射速相关方法
+    // Fire rate methods
     float getFireRate() const override { return fireRate; }
     void setFireRate(float rate) override { fireRate = rate; }
 
@@ -71,13 +70,13 @@ private:
     bool Attack;          
 };
 
-//创建武器
+// Arms Builder
 class BuildArms : public Node
 {
 public:
-	void createArms(int nID, Vec2 tiledPos);  //实际创建武器
-	MyArms* isHaveArms(Vec2 tiledPos);   //检查给定位置是否存在武器
-	CREATE_FUNC(BuildArms);
+    void createArms(int nID, Vec2 tiledPos);  // Create arms instance
+    MyArms* isHaveArms(Vec2 tiledPos);   // Check if arms exists at position
+    CREATE_FUNC(BuildArms);
 };
 
 #endif

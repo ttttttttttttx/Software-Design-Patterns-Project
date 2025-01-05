@@ -33,7 +33,6 @@ private:
 };
 
 #define WINSIZE Director::getInstance()->getVisibleSize()
-//返回一个 Size 类型的对象，表示当前游戏窗口可见区域的尺寸
 
 #define ORIGIN Director::getInstance()->getVisibleOrigin()
 

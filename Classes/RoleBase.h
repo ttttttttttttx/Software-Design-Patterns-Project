@@ -13,7 +13,7 @@ public:
 	CC_SYNTHESIZE(int ,m_nHp,Hp);
 	CC_SYNTHESIZE(int, m_nMaxHp, MaxHp);
 	CC_SYNTHESIZE(Sprite*, m_pModel, Model);
-	CC_SYNTHESIZE(ProgressTimer* ,m_pHpBar,HpBar);//血条精灵
-	CC_SYNTHESIZE(Node*, m_pHpNode, HpNode);//血条节点
+	CC_SYNTHESIZE(ProgressTimer* ,m_pHpBar,HpBar);
+	CC_SYNTHESIZE(Node*, m_pHpNode, HpNode);
 };
 #endif

@@ -10,25 +10,25 @@ public:
 	virtual bool initWithImgPath(std::string strName);
 	static CGameMap* createWithImgPath(std::string strName);
 
-	//转换接口：把像素坐标转换为格子坐标
+	// Convert pixel position to tile position
 	Vec2 getTiledByPos(Vec2 pixelPos);
-	//转换接口：把格子坐标转换到像素坐标
+	// Convert tile position to pixel position
 	Vec2 getPixelByTiledPos(Vec2 tiledPos);
 	//int clickEvent(Vec2 clickPos);
-	// 
-	//获取设计地图的时候所有的对象的坐标（以后怪物的出生点，拐点坐标）
+	
+	// Get initial object positions from map (start point, end point)
 	std::vector<Vec2> getInitPos();
-	//接口，判断一个作标是否在某个层上
+	// Check if a position is in a specific layer
 	bool isInLayer(std::string strName, Vec2 TiledPos);
-	//判断格子是否在地图外
+	// Check if a position is outside the map
 	bool isOutOfMap(Vec2 tiledPos);
-	//通过格子坐标获取某个层上使用的某个图快的属性。
+	// Get tile properties from a specific layer at position
 	ValueMap getProperty(std::string strName, Vec2 tiledPos);
-	//拿到路径最后一个格子像素坐标
+	// Get the last path position in pixel coordinates
 	Vec2 getLastTiledPos();
-	//拿到第一个格子作标
+	// Get the first path position in pixel coordinates
 	Vec2 getFirstTiledPos();
-	//格子的大小：像素
+	// Tile size property
 	CC_SYNTHESIZE(Size, m_tiledSize, TiledSize);
 
 	CC_SYNTHESIZE(TMXTiledMap*, m_pTiledMap, TiledMap);

@@ -7,7 +7,7 @@
 class OptionsScene : public cocos2d::Scene
 {
 public:
-    static cocos2d::Scene* createScene();//继承创建场景
+    static cocos2d::Scene* createScene();
 
     virtual bool init();
 
@@ -25,7 +25,7 @@ public:
 class SetLayer :public cocos2d::Layer
 {
 public:
-    static cocos2d::Layer* createLayer();//继承创建场景
+    static cocos2d::Layer* createLayer();
 
     virtual bool init();
 
@@ -41,7 +41,7 @@ public:
 class StatisticsLayer :public cocos2d::Layer
 {
 public:
-    static cocos2d::Layer* createLayer();//继承创建场景
+    static cocos2d::Layer* createLayer();
 
     virtual bool init();
 
@@ -51,8 +51,7 @@ public:
 class PersonLayer :public cocos2d::Layer
 {
 public:
-    static cocos2d::Layer* createLayer();//继承创建场景
-
+    static cocos2d::Layer* createLayer();
     virtual bool init();
 
     CREATE_FUNC(PersonLayer);

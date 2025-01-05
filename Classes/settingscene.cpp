@@ -6,40 +6,40 @@ static int bg_music_id;
 static int sound_effect = 1;
 using namespace cocos2d::experimental;
 USING_NS_CC;
-///*错误处理*/
-//static void problemLoading(const char* filename)
-//{
-//    printf("Error while loading: %s\n", filename);
-//}
-/**********************   OptionsScene类   ***********************************/
+
+/*************************** OptionsScene Class ***********************************/
 Scene* OptionsScene::createScene()
 {
     return OptionsScene::create();
 }
+
 bool OptionsScene::init()
 {
-    /*初始化场景*/
+    /* Initialize scene */
     if (!Scene::init())
     {
         return false;
     }
 
-    auto visibleSize = Director::getInstance()->getVisibleSize();//获取可视区域的大小
-    Vec2 origin = Director::getInstance()->getVisibleOrigin();//获取可视区域的原点
+    auto visibleSize = Director::getInstance()->getVisibleSize();  // Get visible size
+    Vec2 origin = Director::getInstance()->getVisibleOrigin();  // Get origin point
 
-    /**********************  选项层  ***********************/
-    auto set_layer = SetLayer::createLayer();//创建名为 SetLayer 的图层对象
+    /*************************** Settings Layer ***********************************/
+    auto set_layer = SetLayer::createLayer();  // Create settings layer
     set_layer->setName("SetLayer");
     this->addChild(set_layer);
-    /*****************  统计界面  ******************/
+
+    /*************************** Statistics Layer ***********************************/
     auto statistics_layer = StatisticsLayer::createLayer();
     statistics_layer->setName("StatisticsLayer");
     this->addChild(statistics_layer);
-    /****************  开发人员界面  ***************/
+
+    /*************************** Personnel Layer ***********************************/
     auto person_layer = PersonLayer::createLayer();
     person_layer->setName("PersonLayer");
     this->addChild(person_layer);
-    /********************************  主菜单  ************************************/
+
+    /*************************** Menu ***********************************/
     auto menu_all = Menu::create();
     menu_all->setPosition(Vec2::ZERO);
 
@@ -49,79 +49,76 @@ bool OptionsScene::init()
     menu_all->addChild(home);
 
     this->addChild(menu_all);
-    /*********************************  切换选项卡  ************************************/
-    //set选项卡
+
+    /*************************** Switch Tabs ***********************************/
+    // Settings tab
     auto set_btn = ui::Button::create("/OptionsScene/setting02-hd_45_normal.PNG", "/OptionsScene/setting02-hd_45_normal.PNG", "/OptionsScene/setting02-hd_45.PNG");
-    set_btn->setName("SetBtn");//设置按钮的名称为 "SetBtn"，用于标识这个按钮
+    set_btn->setName("SetBtn");  // Set button name for identification
     set_btn->setPosition(Vec2(origin.x + visibleSize.width * 0.3,
         origin.y + visibleSize.height * 0.925));
-    set_btn->setContentSize(Size(set_btn->getContentSize().width * 2, set_btn->getContentSize().height));//修改按钮的内容大小，将其宽度变为原来的两倍
-    //set_btn->addTouchEventListener(CC_CALLBACK_1(OptionsScene::goto_set, this));//当按钮被点击时，执行 OptionsScene 类中的 goto_set 函数
+    set_btn->setContentSize(Size(set_btn->getContentSize().width * 2, set_btn->getContentSize().height));  // Double the button width
     set_btn->addTouchEventListener([=](Ref* sender, ui::Widget::TouchEventType type) {
         if (type == ui::Widget::TouchEventType::BEGAN) {
             AudioEngine::play2d("sound/Select.mp3", false, 1.2f);
-            goto_set(sender); // 在按下时执行函数
+            goto_set(sender);  // Execute function on press
         }
     });
 
-    set_btn->setEnabled(false);//进入设置的开始界面在选项界面
+    set_btn->setEnabled(false);  // Initially disable settings tab
     this->addChild(set_btn);
-   
-    //statistics选项卡
+
+    //statistics tab
     auto statistics_btn = ui::Button::create("/OptionsScene/setting02-hd_43_normal.PNG", "/OptionsScene/setting02-hd_43_normal.PNG", "/OptionsScene/setting02-hd_43.PNG");
     statistics_btn->setName("StatisticsBtn");
     statistics_btn->setPosition(Vec2(origin.x + visibleSize.width / 2,
         origin.y + visibleSize.height * 0.925));
-    //statistics_btn->setScale(1.4);//放按钮的大小为原始大小的1.4倍，增大了按钮的尺寸
-    //statistics_btn->addTouchEventListener(CC_CALLBACK_1(OptionsScene::goto_statistics, this));//当按钮被点击时，执行 OptionsScene 类中的 goto_statistics 函数
     statistics_btn->addTouchEventListener([=](Ref* sender, ui::Widget::TouchEventType type) {
         if (type == ui::Widget::TouchEventType::BEGAN) {
             AudioEngine::play2d("sound/Select.mp3", false, 1.2f);
-            goto_statistics(sender); // 在按下时执行函数
+            goto_statistics(sender);  // Execute function on press
         }
-        });
+    });
     this->addChild(statistics_btn);
     
-    //person选项卡
+    //person tab
     auto person_btn = ui::Button::create("/OptionsScene/setting02-hd_48_normal.PNG", "/OptionsScene/setting02-hd_48_normal.PNG", "/OptionsScene/setting02-hd_48.PNG");
     person_btn->setName("PersonBtn");
     person_btn->setPosition(Vec2(origin.x + visibleSize.width * 0.7,
         origin.y + visibleSize.height * 0.925));
-    //person_btn->setScale(1.4);//缩放按钮的大小为原始大小的1.4倍，增大了按钮的尺寸
-    //person_btn->addTouchEventListener(CC_CALLBACK_1(OptionsScene::goto_person, this));//当按钮被点击时，执行 OptionsScene 类中的 goto_person 函数
     person_btn->addTouchEventListener([=](Ref* sender, ui::Widget::TouchEventType type) {
         if (type == ui::Widget::TouchEventType::BEGAN) {
             AudioEngine::play2d("sound/Select.mp3", false, 1.2f);
-            goto_person(sender); // 在按下时执行函数
+            goto_person(sender);  // Execute function on press
         }
     });
     this->addChild(person_btn);
 
     return true;
 }
+
 void OptionsScene::goto_menu(Ref* psender)
 {
     AudioEngine::play2d("sound/Select.mp3", false, 1.2f);
     auto menu_scene = CGameMenu::createScene();
     Director::getInstance()->replaceScene(TransitionFade::create(0.5, menu_scene, Color3B::BLACK));
 }
-void OptionsScene::goto_set(Ref* psender)//设置仅选项层可见
+
+void OptionsScene::goto_set(Ref* psender)  // Function to set the settings tab
 {
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-
-    //在当前场景中找到特定名称的节点（SetLayer、StatisticsLayer、PersonLayer）
+    // Get the nodes SetLayer, StatisticsLayer, and PersonLayer
     Node* set = this->getChildByName("SetLayer");
     Node* statistics = this->getChildByName("StatisticsLayer");
     Node* person = this->getChildByName("PersonLayer");
 
-    set->setVisible(true);//设置层（SetLayer）被设置为可见
-    statistics->setVisible(false);//统计层（StatisticsLayer）和制作方层（PersonLayer）被设置为不可见
+    set->setVisible(true);  // Set SetLayer visible
+    statistics->setVisible(false);  // Hide StatisticsLayer
     person->setVisible(false);
 
-    Node* set_btn = this->getChildByName("SetBtn");//通过 getChildByName 方法获取名为 "SetBtn" 的节点
-    static_cast<ui::Button*>(set_btn)->setEnabled(false);//将获取的节点 set_btn 转换为 ui::Button 类型，并将按钮状态设置为禁用
+    Node* set_btn = this->getChildByName("SetBtn");  // Get the SetBtn node
+    static_cast<ui::Button*>(set_btn)->setEnabled(false);  // Cast set_btn to ui::Button and disable the button
     set_btn->setPosition(Vec2(origin.x + visibleSize.width * 0.3,
         origin.y + visibleSize.height * 0.925));
 
@@ -130,14 +127,13 @@ void OptionsScene::goto_set(Ref* psender)//设置仅选项层可见
     statistics_btn->setPosition(Vec2(origin.x + visibleSize.width / 2,
         origin.y + visibleSize.height * 0.925));
 
-
     Node* person_btn = this->getChildByName("PersonBtn");
     static_cast<ui::Button*>(person_btn)->setEnabled(true);
     person_btn->setPosition(Vec2(origin.x + visibleSize.width * 0.7,
         origin.y + visibleSize.height * 0.925));
-
 }
-void OptionsScene::goto_statistics(Ref* psender)//设置仅统计层可见
+
+void OptionsScene::goto_statistics(Ref* psender)  // Function to set the statistics tab
 {
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -155,20 +151,18 @@ void OptionsScene::goto_statistics(Ref* psender)//设置仅统计层可见
     set_btn->setPosition(Vec2(origin.x + visibleSize.width * 0.3,
         origin.y + visibleSize.height * 0.93));
 
-
     Node* statistics_btn = this->getChildByName("StatisticsBtn");
     static_cast<ui::Button*>(statistics_btn)->setEnabled(false);
     statistics_btn->setPosition(Vec2(origin.x + visibleSize.width / 2,
         origin.y + visibleSize.height * 0.925));
 
-
     Node* person_btn = this->getChildByName("PersonBtn");
     static_cast<ui::Button*>(person_btn)->setEnabled(true);
     person_btn->setPosition(Vec2(origin.x + visibleSize.width * 0.7,
         origin.y + visibleSize.height * 0.925));
-
 }
-void OptionsScene::goto_person(Ref* psender)//设置仅人员层可见
+
+void OptionsScene::goto_person(Ref* psender)  // Function to set the person tab
 {
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -196,11 +190,13 @@ void OptionsScene::goto_person(Ref* psender)//设置仅人员层可见
     person_btn->setPosition(Vec2(origin.x + visibleSize.width * 0.7,
         origin.y + visibleSize.height * 0.925));
 }
-/**************************   SetLayer类   ******************************/
+
+/************************** SetLayer Class ******************************/
 cocos2d::Layer* SetLayer::createLayer()
 {
-    return SetLayer::create();//调用了 SetLayer::create() 创建图层，并将其返回
+    return SetLayer::create();  // Create SetLayer object and return it
 }
+
 bool SetLayer::init()
 {
     if (!Layer::init()) {
@@ -210,14 +206,14 @@ bool SetLayer::init()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-    //添加整个设置界面的背景图片
+    // Add the settings background image
     auto set = Sprite::create("/OptionsScene/SettingBG1.PNG");
         set->setPosition(Vec2(origin.x + visibleSize.width / 2,
             origin.y + visibleSize.height / 2));
         this->addChild(set);
     
 
-    //其他背景
+    // Add the sound text
     auto sound_txt = Sprite::create("/OptionsScene/setting02-hd_0.PNG");
         sound_txt->setPosition(Vec2(origin.x + visibleSize.width * 0.4,
             origin.y + visibleSize.height * 0.7));
@@ -251,15 +247,15 @@ bool SetLayer::init()
         wechat_image->setScale(2);
         this->addChild(wechat_image);
     
-    /*********************************  选项层菜单  **************************************/
+    /************************** Menu Items **************************************/
     auto set_menu = Menu::create();
     set_menu->setPosition(Vec2::ZERO);
-    //音效toggle
+    // Sound toggle
     auto sound_on_sprite = Sprite::create("/OptionsScene/setting02-hd_6.PNG");
-    auto sound_on = MenuItemSprite::create(sound_on_sprite, sound_on_sprite);//使用 sound_on_sprite 作为正常状态的图标和被选中状态的图标
+    auto sound_on = MenuItemSprite::create(sound_on_sprite, sound_on_sprite);  // Use sound_on_sprite as the normal state image
     auto sound_off_sprite = Sprite::create("/OptionsScene/setting02-hd_11.PNG");
     auto sound_off = MenuItemSprite::create(sound_off_sprite, sound_off_sprite);
-    MenuItemToggle* sound_toggle; //创建了一个 MenuItemToggle 对象用于处理音效的开关。
+    MenuItemToggle* sound_toggle;  // Create a MenuItemToggle for sound toggling
     if (sound_effect==1) {
         sound_toggle = MenuItemToggle::createWithCallback(CC_CALLBACK_1(SetLayer::close_sound, this), sound_on, sound_off, NULL);
     }
@@ -269,7 +265,7 @@ bool SetLayer::init()
     sound_toggle->setPosition(Vec2(origin.x + visibleSize.width * 0.4,
         origin.y + visibleSize.height * 0.6));
     set_menu->addChild(sound_toggle);
-    //背景音乐toggle
+    // Background music toggle
     auto bgmusic_on_sprite = Sprite::create("/OptionsScene/setting02-hd_15.PNG");
     auto bgmusic_on = MenuItemSprite::create(bgmusic_on_sprite, bgmusic_on_sprite);
     auto bgmusic_off_sprite = Sprite::create("/OptionsScene/setting02-hd_21.PNG");
@@ -284,7 +280,7 @@ bool SetLayer::init()
     bgmusic_toggle->setPosition(Vec2(origin.x + visibleSize.width * 0.6,
         origin.y + visibleSize.height * 0.6));
     set_menu->addChild(bgmusic_toggle);
-    //重置游戏
+    // Reset game
     auto reset_game = MenuItemImage::create("/OptionsScene/setting02-hd_55.PNG", "/OptionsScene/setting02-hd_54.PNG", CC_CALLBACK_1(SetLayer::reset_game, this));
     reset_game->setPosition(Vec2(origin.x + visibleSize.width / 2,
         origin.y + visibleSize.height * 0.15));
@@ -293,9 +289,9 @@ bool SetLayer::init()
     this->addChild(set_menu);
     this->setVisible(true);
 
-
     return true;
 }
+
 void SetLayer::close_sound(Ref* psender)
 {
     if (sound_effect == 1) {
@@ -305,6 +301,7 @@ void SetLayer::close_sound(Ref* psender)
         sound_effect = 1;
     }
 }
+
 void SetLayer::close_bgmusic(Ref* psender)
 {
     auto state = AudioEngine::getState(bg_music_id);
@@ -315,15 +312,18 @@ void SetLayer::close_bgmusic(Ref* psender)
         AudioEngine::resume(bg_music_id);
     }
 }
+
 void SetLayer::reset_game(Ref* psender)
 {
-    //待实现
+    // Reset game
 }
-/*************************   StatisticsLayer类  ****************************/
+
+/************************* StatisticsLayer Class ****************************/
 cocos2d::Layer* StatisticsLayer::createLayer()
 {
     return StatisticsLayer::create();
 }
+
 bool StatisticsLayer::init()
 {
     if (!Layer::init()) {
@@ -333,14 +333,14 @@ bool StatisticsLayer::init()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-    //背景图
+    // Add the statistics background image
     auto statics = Sprite::create("/OptionsScene/SettingBG2.PNG");
         statics->setPosition(Vec2(origin.x + visibleSize.width / 2,
             origin.y + visibleSize.height / 2));
 
         this->addChild(statics);
     
-    //其他背景
+    // Add the statistics text
     auto bg1 = Sprite::create("/OptionsScene/setting02-hd_22.PNG");
         bg1->setPosition(Vec2(origin.x + visibleSize.width * 0.5,
             origin.y + visibleSize.height * 0.68));
@@ -379,14 +379,15 @@ bool StatisticsLayer::init()
 
     this->setVisible(false);
 
-
     return true;
 }
-/*************************  PersonLayer类  ********************************/
+
+/************************* PersonLayer Class ********************************/
 cocos2d::Layer* PersonLayer::createLayer()
 {
     return PersonLayer::create();
 }
+
 bool PersonLayer::init()
 {
     if (!Layer::init()) {
@@ -396,7 +397,7 @@ bool PersonLayer::init()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-    //背景
+    // Add the person background image
     auto person = Sprite::create("/OptionsScene/SettingBG5.jpg");
         person->setPosition(Vec2(origin.x + visibleSize.width / 2,
             origin.y + visibleSize.height / 2));

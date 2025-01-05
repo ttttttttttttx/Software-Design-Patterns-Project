@@ -4,26 +4,26 @@
 #include "cocos2d.h"
 using namespace std;
 
-// 数据结构体，用于表示基础数据的通用属性
+// Base data structure for all data types
 struct SDataBase
 {
     SDataBase()
     {
-        nID = 0;  // 初始化数据ID为0
+        nID = 0;  // Initialize ID to 0
     }
-    int nID;  // 数据ID
+    int nID;  // Data ID
 };
 
-// 数据管理器基类，负责加载数据文件和提供根据ID获取数据的方法
+// Base data manager class, handles file loading and data retrieval by ID
 class CDataBaseMgr
 {
 public:
-    CDataBaseMgr();  // 构造函数
-    virtual ~CDataBaseMgr();  // 虚析构函数，确保子类析构函数会被调用
-    virtual void LoadFile(char* pFileName);  // 加载数据文件的虚函数
-    SDataBase* getDataByID(int nID);  // 根据ID获取数据的方法
+    CDataBaseMgr();  // Constructor
+    virtual ~CDataBaseMgr();  // Virtual destructor for proper inheritance
+    virtual void LoadFile(char* pFileName);  // Load data from file
+    SDataBase* getDataByID(int nID);  // Get data by ID
 protected:
-    vector<SDataBase*> m_vecDatas;  // 数据存储的容器
+    vector<SDataBase*> m_vecDatas;  // Data storage vector
 };
 
 #endif

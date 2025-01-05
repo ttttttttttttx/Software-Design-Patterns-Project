@@ -1,21 +1,21 @@
 #include "Card.h"
 #include "GameScene.h"
 
-//-------------------------------------小武器卡片---------------------------------------//
+//----------------------------------- Money Card -----------------------------------//
 
 MyCard* MyCard::createMoneyCard(SCardDt* pCard)
 {
-	MyCard* pRef = new (std::nothrow) MyCard(); // 使用 std::nothrow 来避免抛出异常
+	MyCard* pRef = new (std::nothrow) MyCard(); // Use std::nothrow to avoid exceptions
 
 	if (pRef)
 	{
 		if (pRef->Sprite::initWithSpriteFrameName(StringUtils::format(pCard->strImg.c_str(), 1)))
 		{
-			// 设置成员变量
+			// Set member variables
 			pRef->myArmsID = pCard->nArmsID;
 			pRef->CardName = pCard->strImg;
 
-			// 读取武器数据
+			// Get arms data
 			CArmsDtMgr* pArmsDtMgr = static_cast<CArmsDtMgr*>(CDataMgr::getInstance()->getData("ArmsMgr"));
 			SArmsDt* pArmsDt = static_cast<SArmsDt*>(pArmsDtMgr->getDataByID(pRef->myArmsID));
 			pRef->myArmsMoney = pArmsDt->vecMoney[0];
@@ -29,12 +29,12 @@ MyCard* MyCard::createMoneyCard(SCardDt* pCard)
 	return NULL;
 }
 
-/*通过钱够不够显示图层的亮与暗
-nMoney：现在有多少钱*/
+/* Update card display based on available money
+   myMoney: current money amount */
 void MyCard::ifMoney(int myMoney)
 {
 	SpriteFrame* pFrame;
-	//比较传入的钱和现在的钱，显示图片的亮和暗
+	// Compare money with card cost to show enabled/disabled image
 	if (myMoney >= myArmsMoney)
 	{
 		pFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(StringUtils::format(CardName.c_str(), 1));
@@ -46,7 +46,7 @@ void MyCard::ifMoney(int myMoney)
 	setSpriteFrame(pFrame);
 }
 
-//----------------------------------------创建武器卡片------------------------------------------//
+//----------------------------------- Arms Card -----------------------------------//
 
 bool ArmsCard::init()
 {
@@ -54,12 +54,12 @@ bool ArmsCard::init()
 	Sprite* pSelect = Sprite::createWithSpriteFrameName("select_01.png");
 	addChild(pSelect);
 	createAllArmsCard();
-	//这样点一下就可以看到框框了
+	// Initially invisible until clicked
 	setVisible(false);
 	return true;
 }
 
-/*创建卡片*/
+/* Create all arms cards */
 void ArmsCard::createAllArmsCard()
 {
 	cardContainers = Sprite::create();
@@ -75,7 +75,7 @@ void ArmsCard::createAllArmsCard()
 		myCard->setPosition(i* myCard->getContentSize().width, 0);
 		myCard->setAnchorPoint(Vec2(0,0));
 
-		// 将卡片添加到卡片容器中，并保存卡片对象到向量中
+		// Add card to container and store in vector
 		cardContainers->addChild(myCard);
 		allCard.push_back(myCard);
 	}
@@ -85,38 +85,38 @@ void ArmsCard::createAllArmsCard()
 	cardContainers->setContentSize(Size(allwidth, allhigh));
 	cardContainers->setAnchorPoint(Vec2(0, 0));
 
-	// 将卡片容器添加到当前层中
+	// Add card container to current layer
 	addChild(cardContainers);
 }
 
 void ArmsCard::clickEventFirst(Vec2 clickPos)
 {
-	// 将点击坐标转换为地图瓦片坐标
+	// Convert click position to tile position
 	Vec2 tiledPos = CGameScene::getInstance()->getGameMap()->getTiledByPos(clickPos);
 
-		// 设置卡片层的卡片精灵和位置
-		for (MyCard* nowCard : allCard)
-		{
-			nowCard->ifMoney(CGameScene::getInstance()->getUILayer()->getMoney());
-		}
-		
-		//是卡片不会越出边界
-		if (clickPos.x + (allCard[0]->getContentSize().width) * allCard.size() > WINSIZE.width)
-		{
-			cardContainers->setAnchorPoint(Vec2(1, 0));
-		}
+	// Update all cards' display based on current money
+	for (MyCard* nowCard : allCard)
+	{
+		nowCard->ifMoney(CGameScene::getInstance()->getUILayer()->getMoney());
+	}
+	
+	// Adjust anchor point if cards would exceed screen boundary
+	if (clickPos.x + (allCard[0]->getContentSize().width) * allCard.size() > WINSIZE.width)
+	{
+		cardContainers->setAnchorPoint(Vec2(1, 0));
+	}
 
-		Vec2 TiledPos = tiledPos;
-		Vec2 Pos = CGameScene::getInstance()->getGameMap()->getPixelByTiledPos(tiledPos);
-		setPosition(Pos);
-		setVisible(true);
+	Vec2 TiledPos = tiledPos;
+	Vec2 Pos = CGameScene::getInstance()->getGameMap()->getPixelByTiledPos(tiledPos);
+	setPosition(Pos);
+	setVisible(true);
 }
 
 void ArmsCard::clickEventSecond(Vec2 clickPos) {
 
 	MyCard* nowCard=NULL;
 
-	//遍历所有卡片找到被点击的卡片
+	// Find the card that was clicked
 	for (MyCard* pCard : allCard)
 	{
 		if (pCard->getBoundingBox().containsPoint(cardContainers->convertToNodeSpace(clickPos)))
@@ -126,24 +126,24 @@ void ArmsCard::clickEventSecond(Vec2 clickPos) {
 		}
 	}
 
-	if (nowCard!=NULL && CGameScene::getInstance()->getUILayer()->getMoney() >= nowCard->getMoney())//拥有金币大于卡片所需金币
+	if (nowCard!=NULL && CGameScene::getInstance()->getUILayer()->getMoney() >= nowCard->getMoney())// If enough money to buy the card
 	{
-		//将世界坐标 转换为地图瓦片坐标
+		// Convert click position to tile position
 		Vec2 tiledPos = CGameScene::getInstance()->getGameMap()->getTiledByPos(this->getPosition());
-		//如果给定位置已经存在武器，直接返回
+		// If no card exists at the clicked tile, create a new card
 		if (!CGameScene::getInstance()->getBuildArms()->isHaveArms(tiledPos))
 		{
-			// 创建武器并放置在卡片层的位置
+			// Create a new card at the clicked tile
 			CGameScene::getInstance()->getBuildArms()->createArms(nowCard->getArmsID(), tiledPos);
 		}
 	}
 
-	// 改变可见值，便于下一次点击
+	// Hide the card
 	setVisible(false);
 	cardContainers->setAnchorPoint(Vec2(0, 0));
 }
 
-//-----------------------------------------升级武器卡片------------------------------------------//
+//----------------------------------- Upgrade Card -----------------------------------//
 
 bool UpCard::init()
 {
@@ -163,7 +163,7 @@ bool UpCard::init()
 
 void UpCard::clickEventFirst(Vec2 clickPos, MyArms* pArms)
 {
-	//第一次点击到有武器的地方,显示卡片
+	// First click, show the card
 	Vec2 tiledPos = CGameScene::getInstance()->getGameMap()->getTiledByPos(clickPos);
 	Vec2 Pos = CGameScene::getInstance()->getGameMap()->getPixelByTiledPos(tiledPos);
 	this->setPosition(Pos);
@@ -174,37 +174,35 @@ void UpCard::clickEventFirst(Vec2 clickPos, MyArms* pArms)
 
 void UpCard::clickEventSecond(Vec2 clickPos, MyArms* pArms) {
 
-	//升级
+	// Upgrade card
 	if (myUpGrade->getBoundingBox().containsPoint(this->convertToNodeSpace(clickPos)))
 	{
-		//卡片不是顶级卡片
+		// If the card is fully upgraded, add money
 		if (nowArms->getGrade() < nowArms->getArmsDt()->vecMoney.size()) {
-			//拿到升级所需金币
+			// Get the money to add
 			int nMoney = nowArms->getArmsDt()->vecMoney[nowArms->getGrade()];
-			//剩余金币必须大于升级所需金币
-			// 装饰器部分客户端代码
-			//升级
+			// Subtract the money from the player's total money
 			// Refactored with Decorator Pattern
 			CGameScene::getInstance()->getUILayer()->addMoney(-nMoney);
 			try {
-				// 创建基础武器
+				// Create a new decorated arms
 				auto myArms = MyArms::create();
 
-				// 创建装饰器并升级武器
+				// Decorate the arms with additional effects
 				auto decoratedArms = std::make_unique<RangeAndSpeedDecorator>(
 					new DamageDecorator(
-						new CritDecorator(myArms, 0.02f), // 每次升级增加2%的暴击率
-						5.0f // 每次升级增加5点伤害
+						new CritDecorator(myArms, 0.02f), // 2% increase in damage
+						5.0f // 5 damage points
 					),
-					10.0f, // 每次升级增加10单位射程
-					0.1f  // 每次升级增加0.1的射速
+					10.0f, // 10 tile range
+					0.1f  // 0.1 seconds between shots
 				);
-				decoratedArms->upgrade(); // 执行升级操作
+				decoratedArms->upgrade(); // Upgrade the arms
 
-				// 将装饰后的武器添加到场景中
+				// Add the decorated arms to the scene
 				scene->addChild(decoratedArms.release());
 
-				// 使用升级后的武器发射子弹
+				// Use the decorated arms
 				decoratedArms->fire();
 			}
 			catch (const std::exception& e) {
@@ -213,21 +211,21 @@ void UpCard::clickEventSecond(Vec2 clickPos, MyArms* pArms) {
 		}
 	}
 
-	//出售
+	// Sell card
 	if (mySell->getBoundingBox().containsPoint(this->convertToNodeSpace(clickPos)))
 	{
 		int allNum = 0;
-		//计算对这个武器花费了我多少钱
+		// Add up the total money from the card
 		for (int i = 0; i < nowArms->getGrade(); i++)
 		{
 			allNum = allNum + nowArms->getArmsDt()->vecMoney[i];
 		}
-		//按8折卖出
+		// Add 80% of the total money to the player's total money
 		CGameScene::getInstance()->getUILayer()->addMoney(allNum * 0.8);
 
-		//将武器移除出去
+		// Remove the card from the scene
 		nowArms->removeFromParent();
-		//把最后一次的子弹也移除出去
+		// Remove the last bullet if it exists
 		if (nowArms->getLastBullet() && nowArms->getLastBullet()->getTag() == 1)
 		{
 			nowArms->getLastBullet()->removeFromParent();
@@ -240,81 +238,81 @@ void UpCard::clickEventSecond(Vec2 clickPos, MyArms* pArms) {
 void UpCard::upCard(MyArms* pArms)
 {
 
-	//设置为范围指示器的精灵帧
+	// Set the card's image based on the current upgrade level
 	SpriteFrame* pRander = SpriteFrameCache::getInstance()->getSpriteFrameByName(StringUtils::format("range_%d.png", pArms->getArmsDt()->vecRange[pArms->getGrade() - 1]));
 	myRander->setSpriteFrame(pRander);
 
-	//升级
+	// Set the card's name based on the current upgrade level
 	string strName;
-	//如果武器没有达到最大等级。
+	// If the card is not fully upgraded, set the name based on the current upgrade level
 	if (pArms->getGrade() < pArms->getArmsDt()->vecMoney.size()) {
-		//存储升级武器的费用或负费用
+		// Store the money to add
 		int nMoney = 0;
-		//检查玩家当前的金币是否大于或等于升级武器到下一级所需的费用。
+		// If the player has enough money to upgrade the card, set nMoney to the actual money to add
 		if (CGameScene::getInstance()->getUILayer()->getMoney() >= pArms->getArmsDt()->vecMoney[pArms->getGrade()])
 		{
-			//如果为真，则 nMoney 被设置为实际的升级费用。
+			// If the player has enough money to upgrade the card, set nMoney to the actual money to add
 			nMoney = pArms->getArmsDt()->vecMoney[pArms->getGrade()];
 		}
 		else {
-			//如果为假，则 nMoney 被设置为升级费用的负值，表示玩家没有足够的金币，卡片应该显示为灰色。
+			// If the player does not have enough money to upgrade the card, set nMoney to the negative value of the card's current upgrade level
 			nMoney = -pArms->getArmsDt()->vecMoney[pArms->getGrade()];
 		}
-		//根据升级费用 (nMoney) 生成"升级按钮"的图像文件名称。
+		// Set the card's name based on the money to add
 		strName = StringUtils::format("upgrade_%d.png", nMoney);
 	}
-	//如果武器已经达到最大等级，图像文件名称被设置为代表最大等级的特定图像。
+	// If the card is fully upgraded, set the name to the fully upgraded image
 	else
 	{
 		strName = "upgrade_0_CN.png";
 	}
 
-	//设置升级按钮精灵帧
+	// Set the card's image based on the card's name
 	SpriteFrame* pUpGrade = SpriteFrameCache::getInstance()->getSpriteFrameByName(strName);
 	myUpGrade->setSpriteFrame(pUpGrade);
 
-	//出售
+	// Set the card's money based on the current upgrade level
 	int mymoney = 0;
-	//通过累加从基本级别升级到当前级别的费用，计算武器的总价值
+	// Add up the total money from the card
 	for (int i = 0; i < pArms->getGrade(); i++)
 	{
 		mymoney = mymoney + pArms->getArmsDt()->vecMoney[i];
 	}
-	//根据总价值的80%生成出售按钮的图像文件名称
+	// Set the card's money based on the total money
 	strName = StringUtils::format("sell_%d.png", (int)(mymoney * 0.8));
 
-	//设置为出售按钮的精灵帧
+	// Set the card's image based on the card's name
 	SpriteFrame* pSell = SpriteFrameCache::getInstance()->getSpriteFrameByName(strName);
 	mySell->setSpriteFrame(pSell);
 
 }
 
-//-----------------------------------------鼠标点击事件----------------------------------------//
+//----------------------------------- Touch Event -----------------------------------//
 
 void ArmsCard::addTouch() {
 
 	EventListenerTouchOneByOne* pListener = EventListenerTouchOneByOne::create();
 	pListener->onTouchBegan = [](Touch* pTouch, Event*) {
 		
-		//获取触摸点在地图上的瓦片坐标
+		// Get the position of the touch on the game map
 		Vec2 tiledPos = CGameScene::getInstance()->getGameMap()->getTiledByPos(pTouch->getLocation());
-		//判断瓦片位置上是否有武器
+		// Check if there is a card at the touched tile
 		MyArms* pArms = CGameScene::getInstance()->getBuildArms()->isHaveArms(tiledPos);
 
-		//升级卡牌层可见
+		// If the upgrade card is visible, click the upgrade card
 		if (CGameScene::getInstance()->getUpCard()->isVisible()) {
 			CGameScene::getInstance()->getUpCard()->clickEventSecond(pTouch->getLocation(), pArms);
 		}
-		//升级卡牌层不可见，但是点击的是有武器的地方
+		// If no card is visible and the touched tile is not occupied, click the upgrade card
 		else if (pArms != NULL && !CGameScene::getInstance()->getArmsCard()->isVisible()) {
 			CGameScene::getInstance()->getUpCard()->clickEventFirst(pTouch->getLocation(), pArms);
 		}
-		// 武器卡片不可见 且不点击路径 且不点击萝卜功能
+		// If no card is visible and the touched tile is not occupied, click the upgrade card
 		else if (!CGameScene::getInstance()->getArmsCard()->isVisible() && !CGameScene::getInstance()->getGameMap()->isInLayer("path", tiledPos))
 		{
 			CGameScene::getInstance()->getArmsCard()->clickEventFirst(pTouch->getLocation());
 		}
-		//武器卡片可见 升级武器
+		// If a card is visible, click the card
 		else if (CGameScene::getInstance()->getArmsCard()->isVisible()) {
 			CGameScene::getInstance()->getArmsCard()->clickEventSecond(pTouch->getLocation());
 		}
@@ -322,7 +320,7 @@ void ArmsCard::addTouch() {
 		return true; 
 	};
 
-	//将事件监听器添加到当前场景节点。
+	// Add the touch listener to the current layer
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(pListener, this);
 
 }

@@ -21,25 +21,25 @@ CDataMgr* CDataMgr::getInstance()
 
 void CDataMgr::addData(string strName, CDataBaseMgr* pDataMgr)
 {
-    // 如果数据管理器名称为空或者传入的数据管理器为空，则直接返回
+    // Return if name is empty or data manager is null
     if (strName.empty() || !pDataMgr)
     {
         return;
     }
 
-    // 插入数据管理器到容器中
+    // Add data manager to map
     m_mapDatas.insert(pair<string, CDataBaseMgr*>(strName, pDataMgr));
 }
 
 CDataBaseMgr* CDataMgr::getData(string strName)
 {
-    // 如果数据管理器名称为空或者找不到对应名称的数据管理器，则返回空指针
+    // Return null if name is empty or data manager not found
     if (strName.empty() || !m_mapDatas[strName])
     {
         return nullptr;
     }
 
-    // 返回对应名称的数据管理器
+    // Return data manager
     return m_mapDatas[strName];
 }
 
