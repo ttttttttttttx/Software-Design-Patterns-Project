@@ -4,6 +4,7 @@
 #include "DataClass.h"
 #include "Monster.h"
 #include "ThreadPool.h"  // Include thread pool header file
+#include "Task.h"
 
 CGameScene* CGameScene::m_spInstance = nullptr;
 CGameScene::CGameScene()
@@ -88,31 +89,16 @@ CGameScene* CGameScene::getInstance()
 
 // Submit collision detection tasks to the thread pool
 void CGameScene::update(float delta) {
-	Vector<Node*> VecBullet = m_pBulletLayer->getChildren();  // Get all bullets
-	Vector<Node*> VecMonster = m_pMonsterLayer->getChildren();  // Get all monsters
+	// Get all bullets and monsters from their respective layers
+	Vector<Node*> VecBullet = m_pBulletLayer->getChildren();
+	Vector<Node*> VecMonster = m_pMonsterLayer->getChildren();
 
-	// Iterate over all bullets and monsters, create collision detection tasks
+	// Create collision detection tasks for each bullet-monster pair
 	for (Node* pBulletNode : VecBullet) {
 		for (Node* pMonsterNode : VecMonster) {
-			// Create a task for each bullet-monster collision detection and submit it to the thread pool
-			m_pThreadPool->enqueueTask([=]() {
-				// Task body: Handle bullet and monster collision detection
-				CMonster* pMonster = static_cast<CMonster*>(pMonsterNode);  // Get monster object
-				CBulletBase* pBullet = static_cast<CBulletBase*>(pBulletNode);  // Get bullet object
-
-				// Calculate the monster's rectangle area
-				Vec2 Pos = Vec2(pMonster->getPosition().x - pMonster->getModel()->getContentSize().width / 2,
-					pMonster->getPosition().y - pMonster->getModel()->getContentSize().height / 2);
-				Rect newRect = Rect(this->convertToNodeSpace(Pos), pMonster->getModel()->getContentSize());
-
-				// Check if the bullet intersects with the monster
-				if (newRect.intersectsCircle(pBullet->getPosition(), 10)) {
-					// If collision occurs, handle collision
-					Director::getInstance()->getScheduler()->performFunctionInMainThread([=]() {
-						pBullet->collisions(pMonsterNode);  // Collision handler must run on the main thread
-						});
-				}
-				});
+			// Create and submit a new collision detection task to the thread pool
+			auto task = std::make_shared<CollisionTask>(pBulletNode, pMonsterNode, this);
+			m_pThreadPool->enqueueTask(task);
 		}
 	}
 }

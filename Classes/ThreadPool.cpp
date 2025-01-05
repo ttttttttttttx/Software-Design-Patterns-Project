@@ -1,49 +1,58 @@
 //------------------------------------Refactored with Thread Pool Pattern--------------------------------------//
 #include "ThreadPool.h"
-// Implementing the ThreadPool class
-// Constructor: Initializes the thread pool and creates the specified number of worker threads
+
+// Constructor initializes the thread pool with the specified number of threads
 ThreadPool::ThreadPool(size_t numThreads) : stop(false) {
-    // Create and start threads
+    // Create and start worker threads
     for (size_t i = 0; i < numThreads; ++i) {
-        workers.emplace_back(&ThreadPool::workerThread, this);  // Each thread calls the workerThread function
+        workers.emplace_back(&ThreadPool::workerThread, this);
     }
 }
 
-// Destructor: Destroys the thread pool and stops all threads
+// Destructor ensures proper cleanup of all threads
 ThreadPool::~ThreadPool() {
     {
         std::lock_guard<std::mutex> lock(queueMutex);
-        stop = true;  // Set the stop flag to notify all threads to exit
+        stop = true;    // Signal all threads to stop
     }
-    condition.notify_all();  // Notify all threads to exit the loop
+    condition.notify_all();  // Wake up all threads
+    // Wait for all threads to finish
     for (std::thread& worker : workers) {
-        worker.join();  // Wait for each thread to finish
+        worker.join();
     }
 }
 
-// Submit a task to the thread pool: Add the task to the task queue
-void ThreadPool::enqueueTask(std::function<void()> task) {
+// Add a new task to the thread pool queue
+void ThreadPool::enqueueTask(std::shared_ptr<Task> task) {
     {
-        std::lock_guard<std::mutex> lock(queueMutex);  // Lock to ensure thread safety
-        tasks.push(task);  // Add the task to the task queue
+        std::lock_guard<std::mutex> lock(queueMutex);
+        tasks.push(task);    // Add task to queue
     }
-    condition.notify_one();  // Wake up one idle worker thread to execute the task
+    condition.notify_one();  // Wake up one worker thread
 }
 
-// Each worker thread executes this function
+// Main worker thread function
 void ThreadPool::workerThread() {
     while (true) {
-        std::function<void()> task;
+        std::shared_ptr<Task> task;
         {
-            // Wait and get a task
+            // Wait for a task or stop signal
             std::unique_lock<std::mutex> lock(queueMutex);
-            condition.wait(lock, [this] { return stop || !tasks.empty(); });  // Wait for the task queue to be non-empty or the stop flag
+            condition.wait(lock, [this] { return stop || !tasks.empty(); });
+            
+            // Exit if thread pool is stopping and no tasks remain
             if (stop && tasks.empty()) {
-                return;  // If the thread pool is stopping and the task queue is empty, exit the thread
+                return;
             }
-            task = tasks.front();  // Get the first task from the queue
-            tasks.pop();  // Remove the task from the queue
+            
+            // Get next task from queue
+            task = tasks.front();
+            tasks.pop();
         }
-        task();  // Execute the task
+        
+        // Execute the task if valid
+        if (task) {
+            task->execute();
+        }
     }
 }

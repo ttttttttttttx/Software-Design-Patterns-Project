@@ -6,40 +6,34 @@
 #include <vector>
 #include <queue>
 #include <mutex>
+#include <memory>
 #include <condition_variable>
-#include <functional>
-#include "cocos2d.h"
+#include "Task.h"
 
-// Create the ThreadPool class
-// The ThreadPool class is responsible for managing multiple worker threads and the task queue
+// ThreadPool class manages a pool of worker threads for executing tasks
 class ThreadPool {
 public:
-    // Constructor to initialize the thread pool
+    // Constructor creates the thread pool with specified number of threads
     ThreadPool(size_t numThreads);
-
-    // Destructor to destroy the thread pool
+    // Destructor ensures proper cleanup of threads
     ~ThreadPool();
 
-    // Submit a task to the thread pool
-    void enqueueTask(std::function<void()> task);
+    // Submit a task to be executed by the thread pool
+    void enqueueTask(std::shared_ptr<Task> task);
 
 private:
-    // Container to store the worker threads
+    // Container for worker threads
     std::vector<std::thread> workers;
-
-    // Task queue to store the tasks to be processed
-    std::queue<std::function<void()>> tasks;
-
-    // Mutex to ensure thread safety when accessing the task queue in a multithreaded environment
+    // Queue of tasks waiting to be executed
+    std::queue<std::shared_ptr<Task>> tasks;
+    // Mutex for thread-safe access to the task queue
     std::mutex queueMutex;
-
     // Condition variable for thread synchronization
     std::condition_variable condition;
-
-    // Flag to control when to stop the thread pool
+    // Flag to signal threads to stop
     bool stop;
 
-    // Worker thread function that each thread executes
+    // Worker thread function that processes tasks
     void workerThread();
 };
 
