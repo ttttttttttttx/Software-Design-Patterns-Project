@@ -4,11 +4,13 @@
 #include "cocos2d.h"
 #include "RoleBase.h"
 #include "DataClass.h"
+#include "MonsterObserver.h"
+#include <vector>
 
 USING_NS_CC;
 
-// Monster class
-class CMonster : public CRoleBase
+// Refactored with Observer Pattern - Monster class implementation
+class CMonster : public CRoleBase, public IMonsterSubject
 {
 public:
 	// Constructor
@@ -55,6 +57,12 @@ public:
 	// Macro to get and set the monster's initial speed
 	CC_SYNTHESIZE(float, m_fSaveSpeed, SaveSpeed);
 
+		// Observer Pattern implementation
+	virtual void addObserver(IMonsterObserver* observer) override;
+	virtual void removeObserver(IMonsterObserver* observer) override;
+	virtual void notifyObservers() override;
+
+
 private:
 	// Monster path
 	static vector<Vec2> m_vecPath;
@@ -73,6 +81,10 @@ private:
 
 	// Monster's coin reward
 	int m_nMoney;
+
+	
+	// Observer Pattern - collection of observers
+	std::vector<IMonsterObserver*> m_observers;
 };
 
 class MonsterFactory

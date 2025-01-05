@@ -317,35 +317,29 @@ void CMonster::setPath(vector<Vec2> vecPath)
     m_vecPath = vecPath;
 }
 
-// Method to remove the monster
-void CMonster::removeMonster()
-{
-    // Remove any buffs from the monster
-    CGameScene::getInstance()->getBuffLayer()->removeBuff(this);
-
-    // If the monster has reached the end of the path, set the reward money to 14
-    if (m_nIndex >= m_vecPath.size() - 1)
-    {
-        m_nMoney = 14;
-    }
-
-    // Increase the player's money
-    CGameScene::getInstance()->getUILayer()->addMoney(m_nMoney);
-
-    // Create the money sprite
-    Sprite* pSprite = Sprite::createWithSpriteFrameName(StringUtils::format("money%d.png", m_nMoney));
-    pSprite->setPosition(this->getPosition());
-    MoveBy* pMoveBy = MoveBy::create(0.5, Vec2(0, 50));
-    pSprite->runAction(Sequence::createWithTwoActions(pMoveBy, RemoveSelf::create()));
-    CGameScene::getInstance()->getUILayer()->addChild(pSprite);
-
-    // Add the monster's death animation
-    CGameScene::getInstance()->getMyAnimate()->createAnimate(this->getPosition(), 3024);
-
-    // Play the monster death sound effect
-    AudioEngine::play2d("sound/monsterDie.mp3", false, 1.1f);
-
-    // Remove the monster from its parent node
-    this->removeFromParent();
+// Observer Pattern implementation
+void CMonster::addObserver(IMonsterObserver* observer) {
+	m_observers.push_back(observer);
 }
 
+void CMonster::removeObserver(IMonsterObserver* observer) {
+	auto it = std::find(m_observers.begin(), m_observers.end(), observer);
+	if (it != m_observers.end()) {
+		m_observers.erase(it);
+	}
+}
+
+void CMonster::notifyObservers() {
+	for (auto observer : m_observers) {
+		observer->onMonsterDeath(this);
+	}
+}
+
+// Refactored with Observer Pattern - monster removal
+void CMonster::removeMonster() {
+	// Notify all observers about monster death
+	notifyObservers();
+	
+	// Remove monster from parent node
+	this->removeFromParent();
+}
