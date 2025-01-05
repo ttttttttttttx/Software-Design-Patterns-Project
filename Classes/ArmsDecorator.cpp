@@ -6,6 +6,7 @@ USING_NS_CC;
 using namespace cocos2d::experimental;
 using namespace cocos2d::ui;
 
+// Refactored with Decorator Pattern
 // 装饰器抽象类方法
 void ArmsDecorator::fire() {
     if (armsComponent) {

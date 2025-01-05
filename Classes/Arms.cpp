@@ -173,7 +173,7 @@ void MyArms::update(float delta)
 	}
 }
 
-
+// Refactored with Decorator Pattern
 //Éý¼¶
 void MyArms::upgrade()
 {

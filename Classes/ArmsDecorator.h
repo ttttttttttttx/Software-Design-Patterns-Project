@@ -9,6 +9,7 @@
 #include <iostream>
 USING_NS_CC;
 
+// Refactored with Decorator Pattern
 // ×°ÊÎÆ÷³éÏóÀà
 class ArmsDecorator : public ArmsComponent 
 {

@@ -184,6 +184,7 @@ void UpCard::clickEventSecond(Vec2 clickPos, MyArms* pArms) {
 			//剩余金币必须大于升级所需金币
 			// 装饰器部分客户端代码
 			//升级
+			// Refactored with Decorator Pattern
 			CGameScene::getInstance()->getUILayer()->addMoney(-nMoney);
 			try {
 				// 创建基础武器

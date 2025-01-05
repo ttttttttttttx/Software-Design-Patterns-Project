@@ -8,6 +8,8 @@
 #include <iostream>
 USING_NS_CC;
 
+
+// Refactored with Decorator Pattern
 // 武器组件接口
 class ArmsComponent : public Node {
 public:
