@@ -2,44 +2,27 @@
 #define __RADISH_H__
 
 #include "cocos2d.h"
-#include "MonsterLayer.h"
+#include "RadishState.h"
 USING_NS_CC;
 
-// ÂÜ²·Àà
 class CRadish : public Node
 {
 public:
-	// ¹¹Ôìº¯Êı
 	CRadish();
-
-	// Îö¹¹º¯Êı
 	~CRadish();
-
-	// ³õÊ¼»¯·½·¨£¬ÓÃÓÚÉèÖÃÂÜ²·µÄ³õÊ¼×´Ì¬
-	virtual bool init();
-
-	// ÂÜ²·ÊÜµ½ÉËº¦µÄ·½·¨£¬·µ»ØÖµ±íÊ¾ÊÇ·ñÂÜ²·´æ»î
-	bool Damage(int damage);
-
+	bool init();
+	void changeState(CRadishState* newState);
 	void addTouch();
-	// ´¦Àíµã»÷ÊÂ¼şµÄ·½·¨£¬clickPos±íÊ¾µã»÷µÄÎ»ÖÃ
 	void clickEvent(Vec2 clickPos);
-
-	// ´´½¨ÊµÀıµÄ¾²Ì¬·½·¨£¬Ê¹ÓÃºê¶¨ÒåÊµÏÖ
+	bool Damage(int damage);
+	void updateRadishDisplay();
 	CREATE_FUNC(CRadish);
-
-	// »ñÈ¡ºÍÉèÖÃÂÜ²·ÉúÃüÖµµÄºê¶¨Òå
 	CC_SYNTHESIZE(int, m_nHP, Hp);
 
 private:
-	// ÂÜ²·µÄÉúÃüÖµÏÔÊ¾
-	Sprite* m_pHp;
-
-	// ÂÜ²·µÄÄ£ĞÍ
-	Sprite* m_pModel;
-
-	// ÂÜ²·µÄÄ£ĞÍ
+	CRadishState* m_state;  // å½“å‰çŠ¶æ€
+	Sprite* m_pHp;          // ç”Ÿå‘½å€¼æ˜¾ç¤ºç²¾çµ
+	Sprite* m_pModel;       // èåœæ¨¡å‹ç²¾çµ
 	Sprite* myup;
 };
-
 #endif

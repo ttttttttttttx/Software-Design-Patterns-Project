@@ -1,113 +1,18 @@
 #include "Radish.h"
 #include "GameScene.h"
 
-// ÂÜ²·ÀàµÄ¹¹Ôìº¯Êı
+// æ„é€ å‡½æ•°
 CRadish::CRadish()
 {
+	m_state = new HealthyState();
 }
 
-// ÂÜ²·ÀàµÄÎö¹¹º¯Êı
 CRadish::~CRadish()
 {
-}
-
-class CRadishState
-{
-public:
-	virtual ~CRadishState() {}
-	virtual void damage(CRadish* radish, int damage) = 0;
-	virtual void clickEvent(CRadish* radish, Vec2 clickPos) = 0;
-	virtual void update(CRadish* radish) = 0;
-};
-
-class HealthyState : public CRadishState
-{
-public:
-	void damage(CRadish* radish, int damage) override {
-		radish->setHp(radish->getHp() - damage);
-		if (radish->getHp() <= 0) {
-			radish->changeState(new DeadState());
-		}
-		else {
-			radish->changeState(new InjuredState());
-		}
-	}
-
-	void clickEvent(CRadish* radish, Vec2 clickPos) override {
-		// ½¡¿µ×´Ì¬ÏÂµÄµã»÷ÊÂ¼ş´¦Àí
-	}
-
-	void update(CRadish* radish) override {
-		// ½¡¿µ×´Ì¬ÏÂµÄ¸üĞÂÂß¼­
-	}
-};
-
-class InjuredState : public CRadishState
-{
-public:
-	void damage(CRadish* radish, int damage) override {
-		radish->setHp(radish->getHp() - damage);
-		if (radish->getHp() <= 0) {
-			radish->changeState(new DeadState());
-		}
-	}
-
-	void clickEvent(CRadish* radish, Vec2 clickPos) override {
-		// ÊÜÉË×´Ì¬ÏÂµÄµã»÷ÊÂ¼ş´¦Àí
-	}
-
-	void update(CRadish* radish) override {
-		// ÊÜÉË×´Ì¬ÏÂµÄ¸üĞÂÂß¼­
-	}
-};
-
-class DeadState : public CRadishState
-{
-public:
-	void damage(CRadish* radish, int damage) override {
-		// ËÀÍö×´Ì¬ÏÂ£¬²»»áÔÙÊÜµ½ÉËº¦
-	}
-
-	void clickEvent(CRadish* radish, Vec2 clickPos) override {
-		// ËÀÍö×´Ì¬ÏÂ£¬µã»÷ÊÂ¼şÎŞĞ§
-	}
-
-	void update(CRadish* radish) override {
-		// ËÀÍö×´Ì¬ÏÂµÄ¸üĞÂÂß¼­
-	}
-};
-
-class CRadish : public Node
-{
-public:
-	CRadish();
-	~CRadish();
-	bool init();
-	void changeState(CRadishState* newState);
-	void addTouch();
-	void clickEvent(Vec2 clickPos);
-	bool Damage(int damage);
-	CREATE_FUNC(CRadish);
-	CC_SYNTHESIZE(int, m_nHP, Hp);
-
-private:
-	CRadishState* m_state;  // µ±Ç°×´Ì¬
-	Sprite* m_pHp;
-	Sprite* m_pModel;
-	Sprite* myup;
-};
-
-CRadish::CRadish()
-{
-	m_state = new HealthyState();  // ³õÊ¼»¯Îª½¡¿µ×´Ì¬
-}
-
-void CRadish::changeState(CRadishState* newState)
-{
-	if (m_state != nullptr) {
+	if (m_state) {
 		delete m_state;
+		m_state = nullptr;
 	}
-	m_state = newState;
 }
 
 bool CRadish::Damage(int damage)
@@ -121,68 +26,39 @@ void CRadish::clickEvent(Vec2 clickPos)
 	m_state->clickEvent(this, clickPos);
 }
 
-
-// ÂÜ²·ÊÜµ½ÉËº¦µÄ·½·¨£¬·µ»ØÖµ±íÊ¾ÊÇ·ñÂÜ²·´æ»î
-bool CRadish::Damage(int damage)
-{
-	m_nHP -= damage;
-
-	// Èç¹ûÉúÃüÖµĞ¡ÓÚµÈÓÚ0£¬ÓÎÏ·½áÊø
-	if (m_nHP <= 0)
-	{
-		CGameScene::getInstance()->getMonsterLayer()->GameOver();
-		return true;
-	}
-
-	// Í£Ö¹Ä£ĞÍ¾«ÁéµÄËùÓĞ¶¯×÷
-	m_pModel->stopAllActions();
-
-	// ¸üĞÂÉúÃüÖµÏÔÊ¾µÄ¾«Áé
-	std::string strName = StringUtils::format("BossHP%02d.png", m_nHP);
-	SpriteFrame* pFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(strName);
-	m_pHp->setSpriteFrame(pFrame);
-
-	// ¸üĞÂÂÜ²·Ä£ĞÍµÄ¾«Áé
-	strName = StringUtils::format("hlb%d.png", m_nHP == 7 || m_nHP == 5 ? m_nHP + 1 : m_nHP);
-	pFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(strName);
-	m_pModel->setSpriteFrame(pFrame);
-
-	return false;
-}
-
 void CRadish::addTouch(){
 	EventListenerTouchOneByOne* pListener = EventListenerTouchOneByOne::create();
 
 	pListener->onTouchBegan = [](Touch* pTouch, Event*) {
-		//´¦ÀíÂÜ²·¶ÔÏóµÄµã»÷ÊÂ¼ş
+		//å¤„ç†èåœçš„ç‚¹å‡»äº‹ä»¶
 		CGameScene::getInstance()->getRadish()->clickEvent(pTouch->getLocation());
 
 		return true;
 	};
-	//½«ÊÂ¼ş¼àÌıÆ÷Ìí¼Óµ½µ±Ç°³¡¾°½Úµã¡£
+	//å°†äº‹ä»¶ç›‘å¬å™¨æ·»åŠ åˆ°å½“å‰èŠ‚ç‚¹çš„äº‹ä»¶åˆ†å‘å™¨ä¸­ã€‚
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(pListener, this);
 }
 
-// ´¦Àíµã»÷ÊÂ¼şµÄ·½·¨£¬clickPos±íÊ¾µã»÷µÄÎ»ÖÃ
-void CRadish::clickEvent(Vec2 clickPos)
-{
-	// Èç¹ûÉúÃüÖµ´óÓÚµÈÓÚ10£¬²¢ÇÒµã»÷Î»ÖÃÔÚÄ£ĞÍ¾«ÁéµÄ±ß½ç¿òÄÚ
-	if (m_nHP >= 10 && m_pModel->getBoundingBox().containsPoint(this->convertToNodeSpace(clickPos)))
-	{
-		// »ñÈ¡ÂÜ²·Éú³¤µÄ¶¯»­
-		Animate* pAnimate = CGameScene::getInstance()->getMyAnimate()->getAnimate(3022);
-		pAnimate->getAnimation()->setRestoreOriginalFrame(true);
+void CRadish::updateRadishDisplay() {
+	// åœæ­¢æ¨¡å‹è¿›è¡Œçš„åŠ¨ç”»
+	m_pModel->stopAllActions();
 
-		// Í£Ö¹ËùÓĞ¶¯×÷£¬ÉèÖÃÄ£ĞÍ¾«ÁéÎªÉú³¤ºóµÄ×´Ì¬£¬²¢Ö´ĞĞ¶¯»­
-		m_pModel->stopAllActions();
-		m_pModel->setSpriteFrame(SpriteFrameCache::getInstance()->getSpriteFrameByName("hlb10.png"));
-		m_pModel->runAction(pAnimate);
+	// æ›´æ–°ç”Ÿå‘½å€¼æ˜¾ç¤ºçš„ç²¾çµ
+	std::string strName = StringUtils::format("BossHP%02d.png", m_nHP);
+	SpriteFrame* pFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(strName);
+	m_pHp->setSpriteFrame(pFrame);
+
+	// æ›´æ–°èåœæ¨¡å‹çš„ç²¾çµ
+	strName = StringUtils::format("hlb%d.png", m_nHP == 7 || m_nHP == 5 ? m_nHP + 1 : m_nHP);
+	pFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(strName);
+	m_pModel->setSpriteFrame(pFrame);
+}
+
+void CRadish::changeState(CRadishState* newState) {
+	if (m_state) {
+		delete m_state;
 	}
-	if (m_nHP < 10 && myup->getBoundingBox().containsPoint(this->convertToNodeSpace(clickPos)))
-	{
-		// ÔöÌíÌØÊâ¼¼ÄÜÂß¼­
-		CGameScene::getInstance()->getMonsterLayer()->applySpecialSkill();
-		
-	}
+	m_state = newState;
+	m_state->enter(this);
 }
 
