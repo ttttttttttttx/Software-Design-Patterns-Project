@@ -1,20 +1,21 @@
+//------------------------------------Refactored with Thread Pool Pattern--------------------------------------//
 #include "GameScene.h"
 #include "DataMgr.h"
 #include "DataClass.h"
 #include "Monster.h"
+#include "ThreadPool.h"  // Include thread pool header file
 
-// Initialize singleton instance
 CGameScene* CGameScene::m_spInstance = nullptr;
-
 CGameScene::CGameScene()
 {
+
 }
 
 CGameScene::~CGameScene()
 {
+
 }
 
-// Initialize game scene
 bool CGameScene::init()
 {
 	if (!Scene::init())
@@ -22,8 +23,12 @@ bool CGameScene::init()
 		return false;
 	}
 
-	CLevelDtMgr* pLevelDtMgr = static_cast<CLevelDtMgr*>(CDataMgr::getInstance()->getData("LevelMgr"));
-	
+	// Initialize thread pool, assuming 4 threads to process tasks in parallel
+	m_pThreadPool = new ThreadPool(4);
+
+
+	CLevelDtMgr* pLevelDtMgr = static_cast<CLevelDtMgr*>(CDataMgr::getInstance()->getData("LevelMgr")); // Get the level data manager
+
 	SLevelDt* pLevelDt = pLevelDtMgr->getCurData();
 
 	m_nMoney = 10000;
@@ -39,14 +44,17 @@ bool CGameScene::init()
 	myAnimate = MyAnimate::create();
 	this->addChild(myAnimate);
 
+
 	m_pBulletLayer = CBulletLayer::create();
 	this->addChild(m_pBulletLayer);
 
 	myArms = BuildArms::create();
 	this->addChild(myArms);
 
+
 	m_pBuffLayer = CBuffLayer::create();
 	this->addChild(m_pBuffLayer);
+
 
 	m_pRadish = CRadish::create();
 	m_pRadish->setPosition(m_pGameMap->getLastTiledPos());
@@ -66,21 +74,9 @@ bool CGameScene::init()
 	this->addChild(pSprite);
 
 	this->scheduleUpdate();
-
-	// Added for Observer Pattern - Create and register observers
-	auto uiObserver = new UIObserver();
-	auto buffObserver = new BuffObserver();
-	auto animateObserver = new AnimateObserver();
-	auto audioObserver = new AudioObserver();
-	
-	// Observer Pattern - Register observers with monster layer
-	m_pMonsterLayer->setObservers({uiObserver, buffObserver, 
-								  animateObserver, audioObserver});
-
 	return true;
 }
 
-// Get singleton instance
 CGameScene* CGameScene::getInstance()
 {
 	if (!m_spInstance)
@@ -90,35 +86,37 @@ CGameScene* CGameScene::getInstance()
 	return m_spInstance;
 }
 
-// Update game logic
-void CGameScene::update(float delta)
-{
-	// Get all bullets
-	Vector<Node*> VecBullet = m_pBulletLayer->getChildren();
-	for (Node* pBulletNode : VecBullet)
-	{
-		// Get all monsters
-		Vector<Node*> VecMonster = m_pMonsterLayer->getChildren();
-		for (Node* pMonsterNode : VecMonster)
-		{
-			CMonster* pMonster = static_cast<CMonster*>(pMonsterNode);
-			CBulletBase* pBullet = static_cast<CBulletBase*>(pBulletNode);
-			
-			// Check collision
-			Vec2 Pos = Vec2(pMonster->getPosition().x - pMonster->getModel()->getContentSize().width / 2,
-						   pMonster->getPosition().y - pMonster->getModel()->getContentSize().height / 2);
-			Rect newRect = Rect(this->convertToNodeSpace(Pos), pMonster->getModel()->getContentSize());
-			
-			if (newRect.intersectsCircle(pBullet->getPosition(), 10))
-			{
-				pBullet->collisions(pMonsterNode);
-				break;
-			}
+// Submit collision detection tasks to the thread pool
+void CGameScene::update(float delta) {
+	Vector<Node*> VecBullet = m_pBulletLayer->getChildren();  // Get all bullets
+	Vector<Node*> VecMonster = m_pMonsterLayer->getChildren();  // Get all monsters
+
+	// Iterate over all bullets and monsters, create collision detection tasks
+	for (Node* pBulletNode : VecBullet) {
+		for (Node* pMonsterNode : VecMonster) {
+			// Create a task for each bullet-monster collision detection and submit it to the thread pool
+			m_pThreadPool->enqueueTask([=]() {
+				// Task body: Handle bullet and monster collision detection
+				CMonster* pMonster = static_cast<CMonster*>(pMonsterNode);  // Get monster object
+				CBulletBase* pBullet = static_cast<CBulletBase*>(pBulletNode);  // Get bullet object
+
+				// Calculate the monster's rectangle area
+				Vec2 Pos = Vec2(pMonster->getPosition().x - pMonster->getModel()->getContentSize().width / 2,
+					pMonster->getPosition().y - pMonster->getModel()->getContentSize().height / 2);
+				Rect newRect = Rect(this->convertToNodeSpace(Pos), pMonster->getModel()->getContentSize());
+
+				// Check if the bullet intersects with the monster
+				if (newRect.intersectsCircle(pBullet->getPosition(), 10)) {
+					// If collision occurs, handle collision
+					Director::getInstance()->getScheduler()->performFunctionInMainThread([=]() {
+						pBullet->collisions(pMonsterNode);  // Collision handler must run on the main thread
+						});
+				}
+				});
 		}
 	}
 }
 
-// Delete singleton instance
 void CGameScene::deletInstance()
 {
 	CGameScene::getInstance()->unscheduleUpdate();
@@ -126,3 +124,8 @@ void CGameScene::deletInstance()
 	m_spInstance = nullptr;
 }
 
+// Clean up thread pool
+CGameScene::~CGameScene() {
+	delete m_pThreadPool;  // Delete thread pool, destroying all threads
+	// Other cleanup operations...
+}

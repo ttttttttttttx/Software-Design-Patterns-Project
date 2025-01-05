@@ -6,205 +6,346 @@ USING_NS_CC;
 using namespace cocos2d::experimental;
 using namespace cocos2d::ui;
 
-// Initialize monster path
+// Initialize the monster path
 vector<Vec2> CMonster::m_vecPath;
 
+// Constructor of the monster class
 CMonster::CMonster()
 {
 }
 
+// Destructor of the monster class
 CMonster::~CMonster()
 {
 }
 
-// Initialize monster with data
-bool CMonster::initWithData(SMonsterDt* pMonster)
-{
-	if (!CRoleBase::init()) return false;
+//------------------------------------Refactored with Factory Method Pattern--------------------------------------//
 
-	initMonsterProperties(pMonster);
+// 1. Define concrete product class CNormalMonster
+// CNormalMonster is a normal monster class that inherits from CMonster and implements initWithData method
+class CNormalMonster : public CMonster {
+public:
+    bool initWithData(SMonsterDt* pMonster) override {
+        if (!CRoleBase::init()) return false;
 
-	createAndSetMonsterModel(pMonster);
+        initMonsterProperties(pMonster); // Initialize monster properties
+        // No further modifications
+        return true;
+    }
+};
 
-	setHpNodePosition();
+// 2. Define concrete product class CEliteMonster
+// CEliteMonster is an elite monster class that inherits from CMonster and implements initWithData method
+class CEliteMonster : public CMonster {
+public:
+    bool initWithData(SMonsterDt* pMonster) override {
+        if (!CRoleBase::init()) return false;
 
-	setInitialPositionAndDirection();
+        initMonsterProperties(pMonster); // Initialize monster properties
+        m_nHp *= 2; // Double the HP
+        return true;
+    }
+};
 
-	scheduleUpdate();
+// 3: Define concrete product class CBossMonster
+// CBossMonster is a boss monster class that inherits from CMonster and implements initWithData method
+class CBossMonster : public CMonster {
+public:
+    bool initWithData(SMonsterDt* pMonster) override {
+        if (!CRoleBase::init()) return false;
 
-	return true;
-}
+        initMonsterProperties(pMonster); // Initialize monster properties
+        m_nHp *= 5;    // Significantly increase HP
+        m_fSpeed *= 0.5; // Decrease speed
+        return true;
+    }
+};
+
+// 4: Define abstract factory class CMonsterFactory
+// This factory class is responsible for creating different monster instances based on the monster type
+class CMonsterFactory {
+public:
+    virtual CMonster* createMonster(SMonsterDt* pMonster) = 0; // Create monster instance
+    virtual ~CMonsterFactory() = default; // Virtual destructor
+};
+
+// 5: Define concrete factory class CNormalMonsterFactory
+// This factory class is responsible for creating normal monster instances
+class CNormalMonsterFactory : public CMonsterFactory {
+public:
+    CMonster* createMonster(SMonsterDt* pMonster) override {
+        CNormalMonster* pMonsterObj = new CNormalMonster();
+        pMonsterObj->initWithData(pMonster); // Initialize monster
+        return pMonsterObj; // Return created monster
+    }
+};
+
+// 6: Define concrete factory class CEliteMonsterFactory
+// This factory class is responsible for creating elite monster instances
+class CEliteMonsterFactory : public CMonsterFactory {
+public:
+    CMonster* createMonster(SMonsterDt* pMonster) override {
+        CEliteMonster* pMonsterObj = new CEliteMonster();
+        pMonsterObj->initWithData(pMonster); // Initialize monster
+        return pMonsterObj; // Return created monster
+    }
+};
+
+// 7: Define concrete factory class CBossMonsterFactory
+// This factory class is responsible for creating boss monster instances
+class CBossMonsterFactory : public CMonsterFactory {
+public:
+    CMonster* createMonster(SMonsterDt* pMonster) override {
+        CBossMonster* pMonsterObj = new CBossMonster();
+        pMonsterObj->initWithData(pMonster); // Initialize monster
+        return pMonsterObj; // Return created monster
+    }
+};
+
+// 8: Using the factory method for object creation
+// Use the factory classes to create monster instances instead of directly creating CMonster objects
+class CMonster {
+public:
+    bool initWithData(SMonsterDt* pMonsterData) {
+        CMonsterFactory* pFactory;
+        CMonster* pMonster = nullptr;
+
+        // Choose different factories based on monster type
+        switch (pMonsterData->type) {
+            case MonsterType::Normal:
+                pFactory = new CNormalMonsterFactory();
+                break;
+            case MonsterType::Elite:
+                pFactory = new CEliteMonsterFactory();
+                break;
+            case MonsterType::Boss:
+                pFactory = new CBossMonsterFactory();
+                break;
+            default:
+                CCLOG("Unknown monster type!");
+                return false;
+        }
+
+        // Use the factory to create the monster
+        pMonster = pFactory->createMonster(pMonsterData);
+        delete pFactory;  // Delete the factory object
+
+        // Initialize other monster properties
+        initMonsterProperties(pMonsterData);
+        // You can also call other methods to initialize the monster, such as model, health bar, etc.
+
+        // Return success
+        return true;
+    }
+};
 
 void CMonster::initMonsterProperties(SMonsterDt* pMonster)
 {
-	// Initialize basic properties
-	m_nIndex = 0;
-	m_TiledSize = CGameScene::getInstance()->getGameMap()->getTiledSize();
-	m_fSaveSpeed = m_fSpeed = pMonster->fSpeed;
-	m_bChangeDir = false;
-	if (pMonster->fSpeed == 10)
-	{
-		m_nHp = m_nMaxHp = 600000;
-	}
-	else
-	{
-		m_nHp = m_nMaxHp = 10000;
-	}
-	m_nMoney = pMonster->nMoney;
+    // Initialize monster properties
+    m_nIndex = 0;
+    m_TiledSize = CGameScene::getInstance()->getGameMap()->getTiledSize();
+    m_fSaveSpeed = m_fSpeed = pMonster->fSpeed;
+    m_bChangeDir = false;
+    if (pMonster->fSpeed == 10)
+    {
+        m_nHp = m_nMaxHp = 600000;
+    }
+    else
+    {
+        m_nHp = m_nMaxHp = 10000;
+    }
+    m_nMoney = pMonster->nMoney;
 }
 
 void CMonster::createAndSetMonsterModel(SMonsterDt* pMonster)
 {
-	m_pModel = Sprite::createWithSpriteFrameName(pMonster->strImg);
+    // Create the monster model
+    m_pModel = Sprite::createWithSpriteFrameName(pMonster->strImg);
 
-	CGameScene::getInstance()->getMyAnimate()->changeAction(m_pModel, pMonster->AnimateID, true, 0.2f);
+    // Switch the monster model's animation, parameters include sprite, animation ID, loop flag, and frame interval
+    CGameScene::getInstance()->getMyAnimate()->changeAction(m_pModel, pMonster->AnimateID, true, 0.2f);
 
-	this->addChild(m_pModel);
+    // Add the monster model to the monster object
+    this->addChild(m_pModel);
 }
 
 void CMonster::setHpNodePosition()
 {
-	m_pHpNode->setPosition(0, m_pModel->getContentSize().height / 2);
+    // Set the monster health bar position
+    m_pHpNode->setPosition(0, m_pModel->getContentSize().height / 2);
 }
 
 void CMonster::setInitialPositionAndDirection()
 {
-	this->setPosition(m_vecPath[m_nIndex]);
+    // Set the initial position of the monster
+    this->setPosition(m_vecPath[m_nIndex]);
 
-	calculateDir();
+    // Calculate the initial direction of the monster
+    calculateDir();
 }
 
-// Create monster instance with data
+// Static method to create a monster instance based on monster data
 CMonster* CMonster::createWithData(SMonsterDt* pMonster)
 {
-	CMonster* pRef = new (std::nothrow) CMonster();
+    CMonster* pRef = new (std::nothrow) CMonster();
 
-	if (pRef && pRef->initWithData(pMonster))
-	{
-		return pRef;
-	}
+    // Check if the instance is successfully created and initialize it
+    if (pRef && pRef->initWithData(pMonster))
+    {
+        return pRef;  // Return the created monster instance
+    }
 
-	delete pRef;
-	return nullptr;
+    delete pRef;  // Use delete to release memory
+
+    return nullptr;  // Return nullptr to indicate creation failure
 }
 
-// Update per frame
+// The monster class's update method for each frame
 void CMonster::update(float delta)
 {
-	if (this->changeUpdateDir())
-	{
-		if (m_nMoney == 999)
-		{
-			CGameScene::getInstance()->getRadish()->Damage(10);
-		}
-		else
-		{
-			CGameScene::getInstance()->getRadish()->Damage(1);
-		}
-		
-		CGameScene::getInstance()->getMyAnimate()->createAnimate(this->getPosition(), 3024);
+    // If the monster has changed direction, check if it should be removed
+    if (this->changeUpdateDir())
+    {
+        if (m_nMoney == 999)
+        {
+            CGameScene::getInstance()->getRadish()->Damage(10);
+        }
+        else
+        {
+            CGameScene::getInstance()->getRadish()->Damage(1);
+        }
 
-		this->removeMonster();
+        // Add monster death animation
+        CGameScene::getInstance()->getMyAnimate()->createAnimate(this->getPosition(), 3024);
 
-		return;
-	}
+        // Remove the monster
+        this->removeMonster();
 
-	Vec2 pos = this->getPosition();
-	pos.x += delta * m_vDir.x * m_fSpeed;
-	pos.y += delta * m_vDir.y * m_fSpeed;
-	this->setPosition(pos);
+        return;
+    }
+
+    // Move the monster
+    Vec2 pos = this->getPosition();
+    pos.x += delta * m_vDir.x * m_fSpeed;
+    pos.y += delta * m_vDir.y * m_fSpeed;
+    this->setPosition(pos);
 }
 
-// Check if position has path property
+// Helper method: check if a specified position has path properties
 bool CMonster::hasPathProperty(const Vec2& pos)
 {
-	ValueMap vmap = CGameScene::getInstance()->getGameMap()->getProperty("path", pos);
-	return vmap.size() != 0 && vmap["point"].asBool();
+    // Get the path properties of the specified position
+    ValueMap vmap = CGameScene::getInstance()->getGameMap()->getProperty("path", pos);
+    return vmap.size() != 0 && vmap["point"].asBool();
 }
 
-// Update direction and index
+// Helper method: update the monster's direction and index
 bool CMonster::updateDirectionAndIndex()
 {
-	m_bChangeDir = true;
-	m_nIndex++;
-	this->calculateDir();
+    // Mark that the direction needs to change
+    m_bChangeDir = true;
+    // Increment the path point index
+    m_nIndex++;
+    // Recalculate the direction
+    this->calculateDir();
 
-	return (m_nIndex >= m_vecPath.size() - 1);
+    // Return whether the monster needs to be removed
+    return (m_nIndex >= m_vecPath.size() - 1);
 }
 
-// Change update direction
+// Method to change the monster's update direction
 bool CMonster::changeUpdateDir()
 {
-	Vec2 monsterPos = this->getPosition();
-	Vec2 nextPos = Vec2(monsterPos.x + m_vDir.x * (m_TiledSize.width / 2 + 3), 
-					   monsterPos.y + m_vDir.y * (m_TiledSize.height / 2 + 3));
-	Vec2 nextTiled = CGameScene::getInstance()->getGameMap()->getTiledByPos(nextPos);
-	Vec2 tiled = CGameScene::getInstance()->getGameMap()->getTiledByPos(monsterPos);
+    // Get the current position of the monster
+    Vec2 monsterPos = this->getPosition();
+    // Calculate the next grid position of the monster
+    Vec2 nextPos = Vec2(monsterPos.x + m_vDir.x * (m_TiledSize.width / 2 + 3), monsterPos.y + m_vDir.y * (m_TiledSize.height / 2 + 3));
+    // Get the next grid position of the monster
+    Vec2 nextTiled = CGameScene::getInstance()->getGameMap()->getTiledByPos(nextPos);
+    // Get the current grid position of the monster
+    Vec2 tiled = CGameScene::getInstance()->getGameMap()->getTiledByPos(monsterPos);
 
-	if (nextTiled == tiled)
-	{
-		m_bChangeDir = false;
-	}
+    // If the next grid and the current grid are the same, it means the monster has not changed direction
+    if (nextTiled == tiled)
+    {
+        m_bChangeDir = false;
+    }
 
-	if (CGameScene::getInstance()->getGameMap()->isOutOfMap(nextTiled))
-	{
-		return updateDirectionAndIndex();
-	}
-	else if (CGameScene::getInstance()->getGameMap()->isInLayer("path", nextTiled))
-	{
-		if (!m_bChangeDir && hasPathProperty(tiled) && nextTiled != tiled)
-		{
-			return updateDirectionAndIndex();
-		}
-	}
-	else
-	{
-		return updateDirectionAndIndex();
-	}
+    // If the next grid is out of bounds
+    if (CGameScene::getInstance()->getGameMap()->isOutOfMap(nextTiled))
+    {
+        return updateDirectionAndIndex();
+    }
+    // If the next grid is a path
+    else if (CGameScene::getInstance()->getGameMap()->isInLayer("path", nextTiled))
+    {
+        // If the direction hasn't changed and the current grid has a path property
+        if (!m_bChangeDir && hasPathProperty(tiled) && nextTiled != tiled)
+        {
+            return updateDirectionAndIndex();
+        }
+    }
+    // If the next grid is not a path
+    else
+    {
+        return updateDirectionAndIndex();
+    }
 
-	return false;
+    // Return whether the monster needs to be removed
+    return false;
 }
 
-// Calculate direction
+// Method to calculate the monster's direction
 void CMonster::calculateDir()
 {
-	if (m_nIndex + 1 < m_vecPath.size())
-	{
-		Vec2 pos = m_vecPath[m_nIndex + 1] - m_vecPath[m_nIndex];
-		m_vDir = pos.getNormalized();
-	}
+    // If the current path index is less than the total number of paths
+    if (m_nIndex + 1 < m_vecPath.size())
+    {
+        // Calculate the direction vector
+        Vec2 pos = m_vecPath[m_nIndex + 1] - m_vecPath[m_nIndex];
+        m_vDir = pos.getNormalized();
+    }
+    else
+    {
+        // Handle out-of-bounds case, such as logging an error or other processing
+    }
 }
 
-// Set monster path
+// Static method to set the monster's path
 void CMonster::setPath(vector<Vec2> vecPath)
 {
-	m_vecPath = vecPath;
+    m_vecPath = vecPath;
 }
 
-// Observer Pattern implementation
-void CMonster::addObserver(IMonsterObserver* observer) {
-	m_observers.push_back(observer);
-}
+// Method to remove the monster
+void CMonster::removeMonster()
+{
+    // Remove any buffs from the monster
+    CGameScene::getInstance()->getBuffLayer()->removeBuff(this);
 
-void CMonster::removeObserver(IMonsterObserver* observer) {
-	auto it = std::find(m_observers.begin(), m_observers.end(), observer);
-	if (it != m_observers.end()) {
-		m_observers.erase(it);
-	}
-}
+    // If the monster has reached the end of the path, set the reward money to 14
+    if (m_nIndex >= m_vecPath.size() - 1)
+    {
+        m_nMoney = 14;
+    }
 
-void CMonster::notifyObservers() {
-	for (auto observer : m_observers) {
-		observer->onMonsterDeath(this);
-	}
-}
+    // Increase the player's money
+    CGameScene::getInstance()->getUILayer()->addMoney(m_nMoney);
 
-// Refactored removeMonster method
-void CMonster::removeMonster() {
-	// Notify all observers about monster death
-	notifyObservers();
-	
-	// Remove monster from parent node
-	this->removeFromParent();
+    // Create the money sprite
+    Sprite* pSprite = Sprite::createWithSpriteFrameName(StringUtils::format("money%d.png", m_nMoney));
+    pSprite->setPosition(this->getPosition());
+    MoveBy* pMoveBy = MoveBy::create(0.5, Vec2(0, 50));
+    pSprite->runAction(Sequence::createWithTwoActions(pMoveBy, RemoveSelf::create()));
+    CGameScene::getInstance()->getUILayer()->addChild(pSprite);
+
+    // Add the monster's death animation
+    CGameScene::getInstance()->getMyAnimate()->createAnimate(this->getPosition(), 3024);
+
+    // Play the monster death sound effect
+    AudioEngine::play2d("sound/monsterDie.mp3", false, 1.1f);
+
+    // Remove the monster from its parent node
+    this->removeFromParent();
 }
 

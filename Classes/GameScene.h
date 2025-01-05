@@ -1,7 +1,6 @@
-// Refactored with Observer Pattern - Game scene header
-#ifndef __GAME_SCENE_H__
-#define __GAME_SCENE_H__
-
+//------------------------------------Refactored with Thread Pool Pattern--------------------------------------//
+#ifndef __GAMESCENE_H__
+#define __GAMESCENE_H__
 #include "cocos2d.h"
 #include "GameMap.h"
 #include "MonsterLayer.h"
@@ -12,13 +11,9 @@
 #include "Radish.h"
 #include "UILayer.h"
 #include "Animate.h"
-// Added for Observer Pattern
-#include "MonsterObserver.h"
-#include "MonsterObservers.h"
+#include "ThreadPool.h"  // Include thread pool header file
 
 USING_NS_CC;
-
-// Game scene class manages all game layers and components
 class CGameScene : public Scene
 {
 public:
@@ -28,8 +23,6 @@ public:
 	static CGameScene* getInstance();
 	static void deletInstance();
 	void update(float delta);
-
-	// Getters and setters for game components
 	CC_SYNTHESIZE(CGameMap*, m_pGameMap, GameMap);
 	CC_SYNTHESIZE(CMonsterLayer*, m_pMonsterLayer, MonsterLayer);
 	CC_SYNTHESIZE(MyAnimate*, myAnimate, MyAnimate);
@@ -41,16 +34,15 @@ public:
 	CC_SYNTHESIZE(CRadish*, m_pRadish, Radish);
 	CC_SYNTHESIZE(int, m_nMoney, Money);
 	CC_SYNTHESIZE(CUILayer*, m_pUILayer, UILayer);
-
 private:
 	CGameScene();
 	static CGameScene* m_spInstance;
+	// Integrate thread pool in CGameScene
+	ThreadPool* m_pThreadPool;  // Pointer to thread pool used to manage concurrent tasks
 };
 
-// Window size macro
 #define WINSIZE Director::getInstance()->getVisibleSize()
 
-// Window origin macro
 #define ORIGIN Director::getInstance()->getVisibleOrigin()
 
 #endif
