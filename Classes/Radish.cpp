@@ -59,6 +59,5 @@ void CRadish::changeState(CRadishState* newState) {
 		delete m_state;
 	}
 	m_state = newState;
-	m_state->enter(this);
 }
 
