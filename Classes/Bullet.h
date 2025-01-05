@@ -4,49 +4,53 @@
 #include "DataClass.h"
 #include "DataMgr.h"
 #include "Monster.h"
+#include "BulletFlyweight.h"
 USING_NS_CC;
 
-//---------------------------------------子弹基类----------------------------------------//
-
+// Base bullet class - Uses Flyweight Pattern for shared states
 class CBulletBase : public Sprite
 {
 public:
-	bool initWithData(SBulletDt* pBullet, int nGrand);  //初始化子弹对象
-	virtual void update(float delta) {};                   //更新子弹对象的状态
-	virtual void collisions(Node* pNode) {};               //处理与其他节点的碰撞
-	CC_SYNTHESIZE(float, mySpeed, Speed);              //由 Speed 生成一个 float 类型的成员变量 m_fSpeed
-	CC_SYNTHESIZE(Vec2, myDir, Dir);                   //生成 Vec2 m_vDir: 表示子弹的方向
-	CC_SYNTHESIZE(float, myAckRange, AckRange);        //生成 float m_fAckRange: 表示子弹的攻击范围
-	CC_SYNTHESIZE(int, myBuffID, BuffID);              //生成 int m_nBuffID: 表示子弹的伤害效果ID
-	CC_SYNTHESIZE(int, myAck, Ack);                    //生成 int m_nAck: 表示子弹的攻击力
-	CC_SYNTHESIZE(int, myDieID, var);
+	bool initWithData(SBulletDt* pBullet, int nGrand);  // Initialize with flyweight data
+	virtual void update(float delta) {};                 // Update bullet state
+	virtual void collisions(Node* pNode) {};             // Handle collisions
+	
+	// Getters/Setters for extrinsic state
+	CC_SYNTHESIZE(float, mySpeed, Speed);               // Movement speed
+	CC_SYNTHESIZE(Vec2, myDir, Dir);                    // Direction vector
+	CC_SYNTHESIZE(float, myAckRange, AckRange);         // Attack range
+	CC_SYNTHESIZE(int, myBuffID, BuffID);               // Buff effect ID
+	CC_SYNTHESIZE(int, myAck, Ack);                     // Attack power
+	CC_SYNTHESIZE(int, myDieID, var);                   // Death effect ID
+	
+	// Add reference to flyweight
+	CC_SYNTHESIZE(BulletFlyweight*, myFlyweight, Flyweight); // Shared state reference
+
 protected:
 	Sprite* nowSprite;
 };
 
-//---------------------------------------创建子弹----------------------------------------//
-
+// Bullet manager layer
 class CBulletLayer : public Node
 {
 public:
-	CBulletBase* addBullet(int nID, Vec2 pos, Node* pNode, float fAckRange, int nGrade);  //添加子弹
-	CREATE_FUNC(CBulletLayer);  //快速创建 CBulletLayer 类
+	CBulletBase* addBullet(int nID, Vec2 pos, Node* pNode, float fAckRange, int nGrade);  // Add bullet
+	CREATE_FUNC(CBulletLayer);  // Create CBulletLayer
 private:
 	CBulletBase* CBulletLayer::createBullet(const string& type, SBulletDt* pBulletDt, int nGrand);
 };
 
-//---------------------------------------绿瓶子----------------------------------------//
-
+// Different bullet type implementations
 class CBulletCommon : public CBulletBase
 {
 public:
 	virtual void update(float delta);
 	virtual void collisions(Node* pNode);
-	static CBulletCommon* createWithData(SBulletDt* pBullet, int nGrade); //相关参数
+	static CBulletCommon* createWithData(SBulletDt* pBullet, int nGrade); //夭
 private:
 };
 
-//---------------------------------------风车----------------------------------------//
+// Green bottle
 
 class CBulletThrough : public CBulletBase
 {
@@ -58,7 +62,7 @@ public:
 private:
 };
 
-//---------------------------------------火瓶子----------------------------------------//
+// Windmill
 
 class CBulletRadial : public CBulletBase
 {
@@ -68,7 +72,7 @@ public:
 	virtual void update(float delta);
 };
 
-//---------------------------------------太阳和冰冻----------------------------------------//
+// Flamejar
 
 class CBulletStatic : public CBulletBase
 {
