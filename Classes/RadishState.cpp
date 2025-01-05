@@ -18,7 +18,7 @@ void HealthyState::clickEvent(CRadish* radish, cocos2d::Vec2 clickPos) {
 void DamagedState::damage(CRadish* radish, int damage) {
     radish->setHp(radish->getHp() - damage);
     if (radish->getHp() <= 3) {
-        radish->changeState(new DangerState());
+        radish->changeState(new DeadState());
     }
     radish->updateRadishDisplay();
 }
@@ -27,8 +27,8 @@ void DamagedState::clickEvent(CRadish* radish, cocos2d::Vec2 clickPos) {
     // Click response in damaged state
 }
 
-// Refactored with State Pattern - DangerState implementation
-void DangerState::damage(CRadish* radish, int damage) {
+// Refactored with State Pattern - DeadState implementation
+void DeadState::damage(CRadish* radish, int damage) {
     radish->setHp(radish->getHp() - damage);
     if (radish->getHp() <= 0) {
         // Handle radish death logic
@@ -36,6 +36,6 @@ void DangerState::damage(CRadish* radish, int damage) {
     radish->updateRadishDisplay();
 }
 
-void DangerState::clickEvent(CRadish* radish, cocos2d::Vec2 clickPos) {
-    // Click response in danger state
+void DeadState::clickEvent(CRadish* radish, cocos2d::Vec2 clickPos) {
+    // Click response in dead state
 } 

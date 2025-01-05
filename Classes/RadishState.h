@@ -27,8 +27,8 @@ public:
     virtual void clickEvent(CRadish* radish, cocos2d::Vec2 clickPos) override;
 };
 
-// Danger state
-class DangerState : public CRadishState {
+// Dead state
+class DeadState : public CRadishState {
 public:
     virtual void damage(CRadish* radish, int damage) override;
     virtual void clickEvent(CRadish* radish, cocos2d::Vec2 clickPos) override;

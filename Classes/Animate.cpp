@@ -2,7 +2,7 @@
 
 bool MyAnimate::init()
 {
-	myAnimateDtMgr = static_cast<CAnimateDtMgr*>(CDataMgr::getInstance()->getData("AnimateMgr"));//拿到动画数据管理者
+	myAnimateDtMgr = static_cast<CAnimateDtMgr*>(CDataMgr::getInstance()->getData("AnimateMgr")); // Get animation data manager
 	return true;
 }
 
@@ -22,12 +22,12 @@ Animation* MyAnimate::seriesAction(int nID) {
 
 void MyAnimate::changeAction(Sprite* pSprite, int nID, bool bEver, float fDelayTime)
 {
-	//小于3000，即怪兽和地图，不会进行升级
+	// Skip if ID < 3000 (reserved for map and UI animations)
 	if (nID<3000)
 	{
 		return;
 	}
-	//停止所有标记为 1 的动作。
+	// Stop all actions with tag 1
 	pSprite->stopAllActionsByTag(1);
 	Animation* pAnimation = seriesAction(nID);
 
@@ -41,7 +41,7 @@ void MyAnimate::changeAction(Sprite* pSprite, int nID, bool bEver, float fDelayT
 	}
 	else
 	{
-		//不需要永久播放，将动画对象的标签设置为 1
+		// Set tag 1 for non-repeating animations
 		pAnimate->setTag(1);
 		pSprite->runAction(pAnimate);
 	}
@@ -51,13 +51,12 @@ Animate* MyAnimate::getAnimate(int nID)
 {
 	Animation* pAnimation = seriesAction(nID);
 
-	//设置延迟时间
-	//动画播放结束后还原到初始帧
+	// Set delay time and restore to first frame when done
 	pAnimation->setDelayPerUnit(0.1f);
 	pAnimation->setRestoreOriginalFrame(true);
 
 	Animate* pAnimate = Animate::create(pAnimation);
-	//设置动画对象的标签为 1。
+	// Set animation tag to 1
 	pAnimate->setTag(1);
 
 	return pAnimate;
@@ -73,7 +72,7 @@ void MyAnimate::createAnimate(Vec2 pos, int nID)
 
 	pSprite->setPosition(pos);
 
-	//组合序列动作：先播放动画，然后移除精灵自身。
+	// Play animation once then remove sprite
 	pSprite->runAction(Sequence::createWithTwoActions(pAnimate,RemoveSelf::create()));
 	this->addChild(pSprite);
 }
