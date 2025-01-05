@@ -182,11 +182,32 @@ void UpCard::clickEventSecond(Vec2 clickPos, MyArms* pArms) {
 			//拿到升级所需金币
 			int nMoney = nowArms->getArmsDt()->vecMoney[nowArms->getGrade()];
 			//剩余金币必须大于升级所需金币
-			if (CGameScene::getInstance()->getUILayer()->getMoney() >= nMoney)
-			{
-				//升级
-				CGameScene::getInstance()->getUILayer()->addMoney(-nMoney);
-				nowArms->upgrade();
+			// 装饰器部分客户端代码
+			//升级
+			CGameScene::getInstance()->getUILayer()->addMoney(-nMoney);
+			try {
+				// 创建基础武器
+				auto myArms = MyArms::create();
+
+				// 创建装饰器并升级武器
+				auto decoratedArms = std::make_unique<RangeAndSpeedDecorator>(
+					new DamageDecorator(
+						new CritDecorator(myArms, 0.02f), // 每次升级增加2%的暴击率
+						5.0f // 每次升级增加5点伤害
+					),
+					10.0f, // 每次升级增加10单位射程
+					0.1f  // 每次升级增加0.1的射速
+				);
+				decoratedArms->upgrade(); // 执行升级操作
+
+				// 将装饰后的武器添加到场景中
+				scene->addChild(decoratedArms.release());
+
+				// 使用升级后的武器发射子弹
+				decoratedArms->fire();
+			}
+			catch (const std::exception& e) {
+				log("Error: %s", e.what());
 			}
 		}
 	}

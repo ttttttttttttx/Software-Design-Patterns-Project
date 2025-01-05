@@ -5,28 +5,71 @@
 #include "Monster.h"
 #include "DataMgr.h"
 #include "Bullet.h"
+#include <iostream>
 USING_NS_CC;
 
-//-----------------------------------------------武器功能------------------------------------------------//
-
-class MyArms : public Sprite
-{
+// 武器组件接口
+class ArmsComponent : public Node {
 public:
-	static MyArms* createWithData(SArmsDt* pArms);
-	void fire(Node* pNode);                 // 用于发射子弹
-	virtual void update(float delta);       // 虚函数，用于更新武器状态
-	void upgrade();                         // 用于升级武器
-	CC_SYNTHESIZE(int, myGrade,Grade);                    //武器等级
-	CC_SYNTHESIZE(SArmsDt*, myArmsDt, ArmsDt);            //武器数据
-	CC_SYNTHESIZE(CBulletBase*, lastBullet,LastBullet);  //上一次发射的子弹
-private:
-	Sprite* baseSprite;    //底座精灵
-	Sprite* nowSprite;        //当前精灵
-	bool Attack;           //攻击状态
+    virtual void fire() = 0;     // 发射子弹
+    virtual void upgrade() = 0;  // 升级武器
+
+    // 获取/设置暴击率
+    virtual float getCritRate() const = 0;
+    virtual void setCritRate(float rate) = 0;
+
+    // 获取/设置伤害
+    virtual float getDamage() const = 0;
+    virtual void setDamage(float damage) = 0;
+
+    // 获取/设置射程
+    virtual float getRange() const = 0;
+    virtual void setRange(float range) = 0;
+
+    // 获取/设置射速
+    virtual float getFireRate() const = 0;
+    virtual void setFireRate(float rate) = 0;
+
+    virtual ~ArmsComponent() {}
 };
 
-//-----------------------------------------------创建武器------------------------------------------------//
+// 具体武器类
+class MyArms : public ArmsComponent {
+public:
+    CREATE_FUNC(MyArms);
+    static MyArms* createWithData(SArmsDt* pArms);
+    void fire(Node* pNode) override;                 
+    virtual void update(float delta);       
+    void upgrade() override;                         
+    CC_SYNTHESIZE(int, myGrade, Grade);                   
+    CC_SYNTHESIZE(SArmsDt*, myArmsDt, ArmsDt);            
+    CC_SYNTHESIZE(CBulletBase*, lastBullet, LastBullet);
 
+    // 暴击率相关方法
+    float getCritRate() const override { return critRate; }
+    void setCritRate(float rate) override { critRate = rate; }
+
+    // 伤害相关方法
+    float getDamage() const override { return damage; }
+    void setDamage(float damage) override { this->damage = damage; }
+
+    // 射程相关方法
+    float getRange() const override { return range; }
+    void setRange(float range) override { this->range = range; }
+
+    // 射速相关方法
+    float getFireRate() const override { return fireRate; }
+    void setFireRate(float rate) override { fireRate = rate; }
+
+private:
+    int grade;
+    float critRate, damage, range, fireRate;
+    Sprite* baseSprite;    
+    Sprite* nowSprite;      
+    bool Attack;          
+};
+
+//创建武器
 class BuildArms : public Node
 {
 public:

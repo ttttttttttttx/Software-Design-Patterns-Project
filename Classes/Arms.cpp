@@ -173,6 +173,8 @@ void MyArms::update(float delta)
 	}
 }
 
+
+//升级
 void MyArms::upgrade()
 {
 	//停止武器的所有动作
@@ -182,20 +184,4 @@ void MyArms::upgrade()
 	//获取下一个等级的武器图像的精灵帧,将武器的主精灵设置为新获取到的精灵帧,显示武器升级后的图像。
 	SpriteFrame* pFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(StringUtils::format(myArmsDt->strImg.c_str(), myGrade));
 	nowSprite->setSpriteFrame(pFrame);
-
-	//太阳更新底座
-	if (myArmsDt->nBulletID == 6003) {
-		SpriteFrame* pFrameBase = SpriteFrameCache::getInstance()->getSpriteFrameByName(StringUtils::format(myArmsDt->strBaseImg.c_str(), myGrade));
-		baseSprite->setSpriteFrame(pFrameBase);
-	}
-
-	//火罐更新，火罐子弹也更新
-	if (lastBullet && lastBullet->getTag() == 1)
-	{
-		//清除旧等级武器所发射的子弹
-		lastBullet->removeFromParent();
-		//升级后的武器处于非攻击状态
-		Attack =false;
-	}
 }
-
