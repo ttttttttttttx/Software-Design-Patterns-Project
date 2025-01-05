@@ -1,7 +1,7 @@
 #include "RadishState.h"
 #include "Radish.h"
 
-// HealthyState实现
+// Refactored with State Pattern - HealthyState implementation
 void HealthyState::damage(CRadish* radish, int damage) {
     radish->setHp(radish->getHp() - damage);
     if (radish->getHp() <= 5) {
@@ -11,10 +11,10 @@ void HealthyState::damage(CRadish* radish, int damage) {
 }
 
 void HealthyState::clickEvent(CRadish* radish, cocos2d::Vec2 clickPos) {
-    // 健康状态下的点击响应
+    // Click response in healthy state
 }
 
-// DamagedState实现
+// Refactored with State Pattern - DamagedState implementation
 void DamagedState::damage(CRadish* radish, int damage) {
     radish->setHp(radish->getHp() - damage);
     if (radish->getHp() <= 3) {
@@ -24,18 +24,18 @@ void DamagedState::damage(CRadish* radish, int damage) {
 }
 
 void DamagedState::clickEvent(CRadish* radish, cocos2d::Vec2 clickPos) {
-    // 受伤状态下的点击响应
+    // Click response in damaged state
 }
 
-// DangerState实现
+// Refactored with State Pattern - DangerState implementation
 void DangerState::damage(CRadish* radish, int damage) {
     radish->setHp(radish->getHp() - damage);
     if (radish->getHp() <= 0) {
-        // 处理萝卜死亡逻辑
+        // Handle radish death logic
     }
     radish->updateRadishDisplay();
 }
 
 void DangerState::clickEvent(CRadish* radish, cocos2d::Vec2 clickPos) {
-    // 危险状态下的点击响应
+    // Click response in danger state
 } 

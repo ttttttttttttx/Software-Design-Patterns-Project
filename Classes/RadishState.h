@@ -3,8 +3,9 @@
 
 #include "cocos2d.h"
 
-class CRadish;  // 前向声明
+class CRadish;  // Forward declaration
 
+// Refactored with State Pattern
 class CRadishState {
 public:
     virtual ~CRadishState() {}
@@ -12,21 +13,21 @@ public:
     virtual void clickEvent(CRadish* radish, cocos2d::Vec2 clickPos) = 0;
 };
 
-// 健康状态
+// Healthy state
 class HealthyState : public CRadishState {
 public:
     virtual void damage(CRadish* radish, int damage) override;
     virtual void clickEvent(CRadish* radish, cocos2d::Vec2 clickPos) override;
 };
 
-// 受伤状态
+// Damaged state
 class DamagedState : public CRadishState {
 public:
     virtual void damage(CRadish* radish, int damage) override;
     virtual void clickEvent(CRadish* radish, cocos2d::Vec2 clickPos) override;
 };
 
-// 危险状态
+// Danger state
 class DangerState : public CRadishState {
 public:
     virtual void damage(CRadish* radish, int damage) override;

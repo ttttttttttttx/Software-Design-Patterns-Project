@@ -1,7 +1,7 @@
 #include "Radish.h"
 #include "GameScene.h"
 
-// 构造函数
+// Constructor
 CRadish::CRadish()
 {
 	m_state = new HealthyState();
@@ -30,30 +30,31 @@ void CRadish::addTouch(){
 	EventListenerTouchOneByOne* pListener = EventListenerTouchOneByOne::create();
 
 	pListener->onTouchBegan = [](Touch* pTouch, Event*) {
-		//处理萝卜的点击事件
+		// Handle radish click event
 		CGameScene::getInstance()->getRadish()->clickEvent(pTouch->getLocation());
 
 		return true;
 	};
-	//将事件监听器添加到当前节点的事件分发器中。
+	// Add event listener to the current node's event dispatcher
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(pListener, this);
 }
 
 void CRadish::updateRadishDisplay() {
-	// 停止模型进行的动画
+	// Stop all actions of the model
 	m_pModel->stopAllActions();
 
-	// 更新生命值显示的精灵
+	// Update the sprite for health display
 	std::string strName = StringUtils::format("BossHP%02d.png", m_nHP);
 	SpriteFrame* pFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(strName);
 	m_pHp->setSpriteFrame(pFrame);
 
-	// 更新萝卜模型的精灵
+	// Update the sprite for radish model
 	strName = StringUtils::format("hlb%d.png", m_nHP == 7 || m_nHP == 5 ? m_nHP + 1 : m_nHP);
 	pFrame = SpriteFrameCache::getInstance()->getSpriteFrameByName(strName);
 	m_pModel->setSpriteFrame(pFrame);
 }
 
+// Refactored with State Pattern - Change state method
 void CRadish::changeState(CRadishState* newState) {
 	if (m_state) {
 		delete m_state;

@@ -20,9 +20,9 @@ public:
 	CC_SYNTHESIZE(int, m_nHP, Hp);
 
 private:
-	CRadishState* m_state;  // 当前状态
-	Sprite* m_pHp;          // 生命值显示精灵
-	Sprite* m_pModel;       // 萝卜模型精灵
+	CRadishState* m_state;  
+	Sprite* m_pHp;          
+	Sprite* m_pModel;       
 	Sprite* myup;
 };
 #endif
