@@ -11,56 +11,116 @@ CRadish::~CRadish()
 {
 }
 
-// 萝卜类的初始化方法
-bool CRadish::init()
+class CRadishState
 {
-	// 判断基类Node的初始化是否成功
-	if (!Node::init())
-	{
-		return false;
-	}
-	this->addTouch();
-	// 初始生命值设置为10
-	m_nHP = 10;
+public:
+	virtual ~CRadishState() {}
+	virtual void damage(CRadish* radish, int damage) = 0;
+	virtual void clickEvent(CRadish* radish, Vec2 clickPos) = 0;
+	virtual void update(CRadish* radish) = 0;
+};
 
-	// 创建生命值显示的精灵，使用格式化字符串获取对应生命值的图片帧名称
-	m_pHp = Sprite::createWithSpriteFrameName(StringUtils::format("BossHP%02d.png", m_nHP));
-
-	// 创建萝卜的模型精灵，使用格式化字符串获取对应生命值的图片帧名称
-	m_pModel = Sprite::createWithSpriteFrameName(StringUtils::format("hlb%d.png", m_nHP));
-	myup= Sprite::createWithSpriteFrameName(StringUtils::format("arrow.png"));
-	myup->setPosition(25,-50);
-
-	// 设置生命值显示的位置
-	m_pHp->setPosition(80, 0);
-
-	// 将生命值显示和萝卜模型添加到萝卜节点中
-	this->addChild(m_pHp);
-	this->addChild(m_pModel);
-	this->addChild(myup);
-
-	// 定时器，每3秒执行一次回调函数
-	this->schedule([=](float) {
-		// 如果生命值小于10，停止定时器
-		if (m_nHP < 10)
-		{
-			this->unschedule("Move");
-			return;
+class HealthyState : public CRadishState
+{
+public:
+	void damage(CRadish* radish, int damage) override {
+		radish->setHp(radish->getHp() - damage);
+		if (radish->getHp() <= 0) {
+			radish->changeState(new DeadState());
 		}
+		else {
+			radish->changeState(new InjuredState());
+		}
+	}
 
-		// 获取萝卜生长的动画
-		Animate* pAnimate = CGameScene::getInstance()->getMyAnimate()->getAnimate(3023);
-		pAnimate->getAnimation()->setRestoreOriginalFrame(true);
+	void clickEvent(CRadish* radish, Vec2 clickPos) override {
+		// 健康状态下的点击事件处理
+	}
 
-		// 停止所有动作，设置模型精灵为生长后的状态，并执行动画
-		m_pModel->stopAllActions();
-		m_pModel->setSpriteFrame(SpriteFrameCache::getInstance()->getSpriteFrameByName("hlb10.png"));
-		m_pModel->runAction(pAnimate);
-		}, 3.0f, "Move");
+	void update(CRadish* radish) override {
+		// 健康状态下的更新逻辑
+	}
+};
 
-	// 初始化成功
-	return true;
+class InjuredState : public CRadishState
+{
+public:
+	void damage(CRadish* radish, int damage) override {
+		radish->setHp(radish->getHp() - damage);
+		if (radish->getHp() <= 0) {
+			radish->changeState(new DeadState());
+		}
+	}
+
+	void clickEvent(CRadish* radish, Vec2 clickPos) override {
+		// 受伤状态下的点击事件处理
+	}
+
+	void update(CRadish* radish) override {
+		// 受伤状态下的更新逻辑
+	}
+};
+
+class DeadState : public CRadishState
+{
+public:
+	void damage(CRadish* radish, int damage) override {
+		// 死亡状态下，不会再受到伤害
+	}
+
+	void clickEvent(CRadish* radish, Vec2 clickPos) override {
+		// 死亡状态下，点击事件无效
+	}
+
+	void update(CRadish* radish) override {
+		// 死亡状态下的更新逻辑
+	}
+};
+
+class CRadish : public Node
+{
+public:
+	CRadish();
+	~CRadish();
+	bool init();
+	void changeState(CRadishState* newState);
+	void addTouch();
+	void clickEvent(Vec2 clickPos);
+	bool Damage(int damage);
+	CREATE_FUNC(CRadish);
+	CC_SYNTHESIZE(int, m_nHP, Hp);
+
+private:
+	CRadishState* m_state;  // 当前状态
+	Sprite* m_pHp;
+	Sprite* m_pModel;
+	Sprite* myup;
+};
+
+CRadish::CRadish()
+{
+	m_state = new HealthyState();  // 初始化为健康状态
 }
+
+void CRadish::changeState(CRadishState* newState)
+{
+	if (m_state != nullptr) {
+		delete m_state;
+	}
+	m_state = newState;
+}
+
+bool CRadish::Damage(int damage)
+{
+	m_state->damage(this, damage);
+	return false;
+}
+
+void CRadish::clickEvent(Vec2 clickPos)
+{
+	m_state->clickEvent(this, clickPos);
+}
+
 
 // 萝卜受到伤害的方法，返回值表示是否萝卜存活
 bool CRadish::Damage(int damage)

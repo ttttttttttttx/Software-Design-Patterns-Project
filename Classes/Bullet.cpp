@@ -40,14 +40,14 @@ CBulletBase* CBulletLayer::addBullet(int nID, Vec2 pos, Node* pNode, float fAckR
 	pBullet->setAckRange(fAckRange);
 
 	//子弹是太阳和冰，播完一个动画再播下一个
-	if (pBulletDt->strType == "Static"  )
+	if (pBulletDt->strType == "Static")
 	{
 		//每0.1f更新一次
 		pBullet->update(0.1f);
 
-        //回调函数，用于在动画播放完成后从父节点中移除子弹。
+		//回调函数，用于在动画播放完成后从父节点中移除子弹。
 		Animate* pAnimate = CGameScene::getInstance()->getMyAnimate()->getAnimate(pBulletDt->nMoveAnimateID + nGrade - 1);//添加动画
-		
+
 		CallFunc* pCall = CallFunc::create([=]() {
 			pBullet->removeFromParent();
 			});
@@ -72,6 +72,49 @@ CBulletBase* CBulletLayer::addBullet(int nID, Vec2 pos, Node* pNode, float fAckR
 	this->addChild(pBullet);
 	return pBullet;
 }
+
+class BulletFlyweight {
+public:
+	BulletFlyweight(const std::string& spriteFrameName, float speed, int buffID, int ack, int dieID)
+		: spriteFrameName(spriteFrameName), speed(speed), buffID(buffID), ack(ack), dieID(dieID) {
+	}
+
+	const std::string& getSpriteFrameName() const { return spriteFrameName; }
+	float getSpeed() const { return speed; }
+	int getBuffID() const { return buffID; }
+	int getAck() const { return ack; }
+	int getDieID() const { return dieID; }
+
+private:
+	std::string spriteFrameName;
+	float speed;
+	int buffID;
+	int ack;
+	int dieID;
+};
+
+class BulletFlyweightFactory {
+public:
+	static BulletFlyweight* getFlyweight(int bulletID) {
+		auto it = flyweights.find(bulletID);
+		if (it != flyweights.end()) {
+			return &it->second;
+		}
+
+		// 模拟从配置加载
+		if (bulletID == 1) {
+			flyweights[bulletID] = BulletFlyweight("common_bullet.png", 200.0f, 1, 10, 100);
+		}
+		else if (bulletID == 2) {
+			flyweights[bulletID] = BulletFlyweight("through_bullet.png", 250.0f, 2, 15, 101);
+		}
+
+		return &flyweights[bulletID];
+	}
+
+private:
+	static std::unordered_map<int, BulletFlyweight> flyweights;
+};
 
 // 创建子弹对象的函数
 CBulletBase* CBulletLayer::createBullet(const string& type, SBulletDt* pBulletDt, int nGrand) {
@@ -160,14 +203,14 @@ void CBulletThrough::update(float delta)
 
 	// 让子弹自身不断旋转
 	this->setRotation(this->getRotation() + 500.0f * delta);
-	this->setPosition(pos);  
+	this->setPosition(pos);
 }
 
 /*穿过子弹 风扇 攻击怪物*/
 void CBulletThrough::collisions(Node* pNode)
 {
 	//没有发生碰撞
-	if (myAckNode !=pNode)
+	if (myAckNode != pNode)
 	{
 		//将当前对象的 myAckNode 更新为传入的节点 pNode
 		myAckNode = pNode;
@@ -218,7 +261,7 @@ CBulletRadial* CBulletRadial::createWithData(SBulletDt* pBullet, int nGrade)
 /*辐射子弹 火瓶子 更新和攻击动画*/
 void CBulletRadial::update(float delta)
 {
-	CMonster* pMonster=CGameScene::getInstance()->getMonsterLayer()->getMonster(myAckRange, getPosition());
+	CMonster* pMonster = CGameScene::getInstance()->getMonsterLayer()->getMonster(myAckRange, getPosition());
 	//子弹攻击范围里有怪物
 	if (pMonster)
 	{
@@ -231,11 +274,11 @@ void CBulletRadial::update(float delta)
 			CGameScene::getInstance()->getMyAnimate()->createAnimate(this->getPosition(), myDieID);
 		}
 
-		
+
 		Vec2 Pos = pMonster->getPosition() - getPosition();
 		//子弹旋转
 		float radian = Pos.getAngle(Vec2(0, 1));
-        setRotation(CC_RADIANS_TO_DEGREES(radian));
+		setRotation(CC_RADIANS_TO_DEGREES(radian));
 		//子弹缩放
 		float multiple = Pos.getLength() / getContentSize().height;
 		setScaleY(multiple);
@@ -269,7 +312,7 @@ void CBulletStatic::update(float delta)
 	//获取怪物层中子弹攻击范围里的所有怪物，存放在vector数组中
 	vector<CMonster*> vecMonster = CGameScene::getInstance()->getMonsterLayer()->getMonsterVec(myAckRange, this->getPosition());
 
-	for (int i = 0; i < vecMonster.size();i++)
+	for (int i = 0; i < vecMonster.size(); i++)
 	{
 		//没了就移除
 		if (vecMonster[i]->Damage(myAck))
@@ -277,8 +320,8 @@ void CBulletStatic::update(float delta)
 			vecMonster[i]->removeMonster();
 		}
 		else {
-		//没有移除的怪物就掉血
-		CGameScene::getInstance()->getBuffLayer()->addBuff(vecMonster[i], myBuffID);
+			//没有移除的怪物就掉血
+			CGameScene::getInstance()->getBuffLayer()->addBuff(vecMonster[i], myBuffID);
 		}
 	}
 }
